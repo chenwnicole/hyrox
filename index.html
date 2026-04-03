@@ -175,6 +175,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
     <button class="rules-toggle" style="margin-bottom:0" onclick="toggleRules()">▸ swap rules</button>
     <button class="rules-toggle" style="margin-bottom:0" id="expandBtn" onclick="toggleExpandAll()">▸ expand all</button>
     <button class="rules-toggle" style="margin-bottom:0" onclick="toggleStandards()">▸ race standards</button>
+    <button class="rules-toggle" style="margin-bottom:0" onclick="toggleStretches()">▸ stretches</button>
   </div>
   <div class="rules-box" id="rulesBox">
     <strong>Always okay:</strong> Swap two days with the same session type. Move Zwift Z2 to any evening (done by 8pm). Shift long run ±1 day.<br>
@@ -193,6 +194,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
     <strong>8. Wall balls</strong> — 100 reps total · 4kg (9lbs) ball · 9ft target
   </div>
 
+  <div class="rules-box" id="stretchesBox" style="display:none">
+    <strong style="color:var(--accent);font-size:12px">Warm-up — 5–7 min, dynamic</strong><br><br>
+    <strong>1. Leg swings</strong> — 10 each leg, front/back. Loosen hip flexors.<br>
+    <strong>2. Hip circles</strong> — 10 each direction. Activate the whole hip.<br>
+    <strong>3. Glute bridges</strong> — 15 reps slow. Wake up glutes before loading quads.<br>
+    <strong>4. Wall sit</strong> — 20–30 sec, shallow angle. Warm up patellar tendon gradually.<br>
+    <strong>5. Inchworms</strong> — 5 reps. Full chain activation.<br>
+    <strong>6. World's greatest stretch</strong> — 5 each side.<br><br>
+    <strong style="color:var(--accent);font-size:12px">Cooldown — 8–10 min, static</strong><br><br>
+    <strong>1. Quad stretch</strong> — 45 sec each. Most important for right knee.<br>
+    <strong>2. Kneeling hip flexor stretch</strong> — 45 sec each side.<br>
+    <strong>3. Pigeon pose</strong> — 60 sec each side. Glutes and external rotators.<br>
+    <strong>4. IT band stretch</strong> — standing crossover, 30 sec each.<br>
+    <strong>5. Seated hamstring stretch</strong> — 45 sec each.<br>
+    <strong>6. Lat/shoulder stretch</strong> — grab a rack, hinge at hips. Key after ski erg.<br>
+    <strong>7. Calf stretch</strong> — against a wall, 30 sec each.<br><br>
+    <span style="color:var(--warn);font-size:10px">⚠ Right knee: if tender mid-session, back off squat/lunge depth. Don't push through patellar irritation.</span>
+  </div>
   <div class="week-nav" id="weekNav"></div>
   <div class="conflict-banner" id="conflictBanner">
     <span style="flex-shrink:0;margin-top:1px">⚠</span>
@@ -697,23 +716,44 @@ function toggleExpandAll(){
   if(btn)btn.textContent=(allExpanded?'▾ collapse all':'▸ expand all');
 }
 
+function toggleStretches(){
+  const b=document.getElementById('stretchesBox');
+  const show=b.style.display==='none';
+  if(show){
+    document.getElementById('rulesBox').classList.remove('show');
+    document.getElementById('standardsBox').style.display='none';
+    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swap rules';
+    document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
+  }
+  b.style.display=show?'block':'none';
+  document.querySelectorAll('.rules-toggle')[3].textContent=(show?'▾':'▸')+' stretches';
+}
+
 function toggleStandards(){
   const b=document.getElementById('standardsBox');
   const show=b.style.display==='none';
-  if(show) document.getElementById('rulesBox').classList.remove('show');
+  if(show){
+    document.getElementById('rulesBox').classList.remove('show');
+    document.getElementById('stretchesBox').style.display='none';
+    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swap rules';
+    document.querySelectorAll('.rules-toggle')[3].textContent='▸ stretches';
+  }
   b.style.display=show?'block':'none';
   document.querySelectorAll('.rules-toggle')[2].textContent=(show?'▾':'▸')+' race standards';
-  if(show) document.querySelector('.rules-toggle').textContent='▸ swap rules';
 }
 
 // ── RULES ────────────────────────────────────────────────────────────────────
 function toggleRules(){
   const b=document.getElementById('rulesBox');
   const showing=!b.classList.contains('show');
-  if(showing) document.getElementById('standardsBox').style.display='none';
+  if(showing){
+    document.getElementById('standardsBox').style.display='none';
+    document.getElementById('stretchesBox').style.display='none';
+    document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
+    document.querySelectorAll('.rules-toggle')[3].textContent='▸ stretches';
+  }
   b.classList.toggle('show',showing);
   document.querySelector('.rules-toggle').textContent=(showing?'▾':'▸')+' swap rules';
-  if(showing) document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
 }
 
 // ── CONFLICT DETECTION ───────────────────────────────────────────────────────

@@ -236,25 +236,10 @@ const WEEKS = [
   num:0,label:'Week 0',short:'Wk0',dates:'Mar 31 – Apr 5',phase:'explore',phaseLabel:'Explore',
   focus:'Touch every station, find starting weights. No pressure on reps or loading — just calibrate.',
   days:[
-    {name:'Mon',date:'Mar 31',sessions:[
-      {id:'w0-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Standard effort.'},
-      {id:'w0-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',detail:'30–40 min. 3×12: leg press, seated row, shoulder press, lateral raise. Light, form focus.'}
-    ]},
-    {name:'Tue',date:'Apr 1',sessions:[
-      {id:'w0-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — explore',exercises:[
-        {id:'w0t1-skierg',name:'Ski erg',detail:'3–4 min easy. Hip hinge, not arms. Note feel.',hasWeight:false},
-        {id:'w0t1-sledpush',name:'Sled push',detail:'Try a few weights. Hard but moveable for 10m.',hasWeight:true,unit:'lbs'},
-        {id:'w0t1-sledpull',name:'Sled pull',detail:'Same exploration. Note your weight.',hasWeight:true,unit:'lbs'},
-        {id:'w0t1-wallball',name:'Wall balls',detail:'2–3×10 at 4kg to 9ft. Full squat, explosive.',hasWeight:false},
-        {id:'w0t1-sandbag',name:'Sandbag lunges',detail:'Find a weight that\'s awkward but doable.',hasWeight:true,unit:'lbs'},
-        {id:'w0t1-carry',name:'Farmers carry',detail:'Find a challenging but manageable load.',hasWeight:true,unit:'lbs'},
-        {id:'w0t1-bbj',name:'Burpee broad jumps',detail:'10 reps. Note how they feel on your body.',hasWeight:false},
-      ]}
-    ]},
-    {name:'Wed',date:'Apr 2',sessions:[
+    {name:'Thu',date:'Apr 2',sessions:[
       {id:'w0-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
     ]},
-    {name:'Thu',date:'Apr 3',sessions:[
+    {name:'Fri',date:'Apr 3',sessions:[
       {id:'w0-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — second look',exercises:[
         {id:'w0t2-skierg',name:'Ski erg',detail:'Repeat. Push slightly harder if it felt too easy.',hasWeight:false,hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w0t2-sledpush',name:'Sled push',detail:'Load more confidently now.',hasWeight:true,unit:'lbs'},
@@ -264,19 +249,10 @@ const WEEKS = [
         {id:'w0t2-bbj',name:'Burpee broad jumps',detail:'3×10. Chest-to-floor, explosive jump.',hasWeight:false},
       ]}
     ]},
-    {name:'Fri',date:'Apr 4',sessions:[
-      {id:'w0-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
-      {id:'w0-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
-        {id:'w0a2-latpull',name:'Diverging lat pulldown',detail:'3×12.',hasWeight:true,unit:'lbs'},
-        {id:'w0a2-bicep',name:'Bicep curl',detail:'3×12.',hasWeight:true,unit:'lbs'},
-        {id:'w0a2-tricep',name:'Tricep extension',detail:'3×12.',hasWeight:true,unit:'lbs'},
-        {id:'w0a2-hack',name:'Hack squat / V squat',detail:'3×12. Light.',hasWeight:true,unit:'lbs'},
-      ]}
-    ]},
-    {name:'Sat',date:'Apr 5',sessions:[
+    {name:'Sat',date:'Apr 4',sessions:[
       {id:'w0-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'5–7 miles. Easy, conversational. Zone 2 effort.'}
     ]},
-    {name:'Sun',date:'Apr 6',sessions:[
+    {name:'Sun',date:'Apr 5',sessions:[
       {id:'w0-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Full rest or optional 30 min Zwift Z2 if legs feel genuinely good.'}
     ]},
   ]
@@ -459,10 +435,10 @@ const WEEKS = [
       ]},
       {id:'w4-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Easy recovery spin.'}
     ]},
-    {name:'Wed',date:'Apr 28',sessions:[
+    {name:'Wed',date:'Apr 29',sessions:[
       {id:'w4-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Moderate effort — preserve legs for Thursday sim.'}
     ]},
-    {name:'Thu',date:'May 1',sessions:[
+    {name:'Thu',date:'Apr 30',sessions:[
       {id:'w4-thu-sim',time:'Morning',tag:'vibe-s',label:'RACE SIMULATION — all 8 stations',exercises:[
         {id:'w4sim-skierg',name:'1. Ski erg',detail:'500m at race effort. This is your half of 1000m.',hasTime:true,timeLabel:'Time (sec)'},
         {id:'w4sim-sledpush',name:'2. Sled push',detail:'25m. Your half of 50m.',hasWeight:true,unit:'lbs'},
@@ -474,13 +450,13 @@ const WEEKS = [
         {id:'w4sim-wallball',name:'8. Wall balls',detail:'50 reps. Your half of 100. Go unbroken.',hasWeight:false},
       ]}
     ]},
-    {name:'Fri',date:'May 2',sessions:[
+    {name:'Fri',date:'May 1',sessions:[
       {id:'w4-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Easy class. Your legs will be cooked from Thursday. Just move.'}
     ]},
-    {name:'Sat',date:'May 3',sessions:[
+    {name:'Sat',date:'May 2',sessions:[
       {id:'w4-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'7–8 miles. Easy. Last long run before taper.'}
     ]},
-    {name:'Sun',date:'May 4',sessions:[
+    {name:'Sun',date:'May 3',sessions:[
       {id:'w4-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Complete rest. Taper starts now.'}
     ]},
   ]

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyrox Training · Nicole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e0e;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;
+  --accent:#c8f135;--accent2:#ff6b35;--text:#f0ede6;--muted:#777;
+  --otf:#ff6b35;--vibe-s:#c8f135;--vibe-a:#a78bfa;--run:#38bdf8;--zwift:#fbbf24;
+  --warn:#f59e0b;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;-webkit-font-smoothing:antialiased}
+.app{max-width:700px;margin:0 auto;padding:32px 18px 80px}
+
+/* header */
+.header{margin-bottom:32px;border-bottom:1px solid var(--border);padding-bottom:24px}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:12px}
+.title{font-family:var(--fd);font-size:58px;letter-spacing:1px;color:var(--text);line-height:.95}
+.title span{color:var(--accent)}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-top:6px}
+.race-badge{background:var(--accent2);color:#fff;font-family:var(--fm);font-size:10px;font-weight:500;padding:5px 11px;border-radius:2px;letter-spacing:.08em;white-space:nowrap}
+.subtitle{font-size:11px;color:var(--muted);font-family:var(--fm);letter-spacing:.05em}
+.countdown{font-family:var(--fm);font-size:11px;color:var(--accent);letter-spacing:.04em}
+
+/* swap rules */
+.rules-toggle{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:var(--fm);font-size:10px;padding:5px 10px;cursor:pointer;margin-bottom:12px;letter-spacing:.04em;transition:all .15s}
+.rules-toggle:hover{border-color:var(--muted);color:var(--text)}
+.rules-box{display:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--muted);line-height:1.7}
+.rules-box.show{display:block}
+.rules-box strong{color:var(--text);font-weight:500}
+
+/* week nav */
+.week-nav{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.week-btn{flex:1;background:none;border:none;color:var(--muted);font-family:var(--fm);font-size:10px;padding:9px 2px;cursor:pointer;transition:all .15s;letter-spacing:.03em}
+.week-btn:hover{color:var(--text);background:var(--surface2)}
+.week-btn.active{background:var(--accent);color:#000;font-weight:500}
+.week-btn+.week-btn{border-left:1px solid var(--border)}
+.week-btn.taper{font-size:9px}
+
+/* conflict banner */
+.conflict-banner{display:none;align-items:flex-start;gap:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--warn);line-height:1.6}
+.conflict-banner.show{display:flex}
+
+/* week info */
+.week-label{font-family:var(--fd);font-size:32px;letter-spacing:.5px;margin-bottom:3px}
+.week-dates{font-family:var(--fm);font-size:11px;color:var(--muted);margin-bottom:10px}
+.week-focus{font-size:12px;color:var(--muted);border-left:2px solid var(--accent);padding:4px 0 4px 10px;margin-bottom:18px;line-height:1.7}
+.phase-badge{display:inline-block;font-family:var(--fm);font-size:9px;padding:2px 8px;border-radius:2px;letter-spacing:.06em;margin-bottom:14px}
+.phase-explore{background:rgba(167,139,250,.12);color:var(--vibe-a);border:1px solid rgba(167,139,250,.3)}
+.phase-build{background:rgba(200,241,53,.1);color:var(--vibe-s);border:1px solid rgba(200,241,53,.3)}
+.phase-peak{background:rgba(255,107,53,.12);color:var(--otf);border:1px solid rgba(255,107,53,.3)}
+.phase-taper{background:rgba(56,189,248,.1);color:var(--run);border:1px solid rgba(56,189,248,.3)}
+.phase-race{background:rgba(251,191,36,.1);color:var(--zwift);border:1px solid rgba(251,191,36,.3)}
+
+/* day cards */
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+.day-card:hover{border-color:#333}
+.day-card.complete{border-color:rgba(200,241,53,.45)}
+.day-card.conflict{border-color:rgba(245,158,11,.4)}
+.day-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.day-name{font-family:var(--fd);font-size:22px;letter-spacing:.5px;min-width:36px}
+.day-date-label{font-family:var(--fm);font-size:11px;color:var(--muted)}
+.day-right{margin-left:auto;display:flex;align-items:center;gap:7px}
+.progress-dots{display:flex;gap:3px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s}
+.dot.done{background:var(--accent)}
+.warn-dot{width:6px;height:6px;border-radius:50%;background:var(--warn)}
+.chevron{color:var(--muted);font-size:11px;transition:transform .2s}
+.day-card.open .chevron{transform:rotate(180deg)}
+.day-body{display:none}
+.day-card.open .day-body{display:block}
+
+/* sessions */
+.session-block{padding:11px 14px;border-top:1px solid var(--border)}
+.session-block:first-child{border-top:none}
+.session-header{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.session-time-tag{font-family:var(--fm);font-size:10px;color:var(--muted);min-width:54px;flex-shrink:0}
+.session-name{font-size:12px;font-weight:500;color:var(--text)}
+.session-check{width:15px;height:15px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-left:auto}
+.session-check.checked{background:var(--accent);border-color:var(--accent)}
+.session-check.checked::after{content:'✓';font-size:9px;color:#000;font-weight:700}
+.session-detail-text{font-size:12px;color:var(--muted);line-height:1.6}
+.move-btn{background:none;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:var(--fm);font-size:9px;padding:2px 7px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.move-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* tags */
+.tag{font-family:var(--fm);font-size:9px;font-weight:500;padding:2px 7px;border-radius:2px;letter-spacing:.06em;white-space:nowrap}
+.tag-otf{background:rgba(255,107,53,.15);color:var(--otf);border:1px solid rgba(255,107,53,.3)}
+.tag-vibe-s{background:rgba(200,241,53,.12);color:var(--vibe-s);border:1px solid rgba(200,241,53,.3)}
+.tag-vibe-a{background:rgba(167,139,250,.12);color:var(--vibe-a);border:1px solid rgba(167,139,250,.3)}
+.tag-run{background:rgba(56,189,248,.12);color:var(--run);border:1px solid rgba(56,189,248,.3)}
+.tag-zwift{background:rgba(251,191,36,.12);color:var(--zwift);border:1px solid rgba(251,191,36,.3)}
+.tag-rest{background:rgba(136,136,136,.1);color:var(--muted);border:1px solid rgba(136,136,136,.2)}
+
+/* exercises */
+.exercises{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.exercise-row{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;background:var(--surface2);border-radius:5px;border:1px solid var(--border)}
+.ex-check{width:15px;height:15px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ex-check.checked{background:var(--accent);border-color:var(--accent)}
+.ex-check.checked::after{content:'✓';font-size:9px;color:#000;font-weight:700}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.ex-name.struck{text-decoration:line-through;color:var(--muted)}
+.ex-detail{font-size:11px;color:var(--muted);line-height:1.5}
+.ex-weight-row{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.weight-label{font-family:var(--fm);font-size:10px;color:var(--muted)}
+.weight-input{background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--accent);font-family:var(--fm);font-size:11px;padding:3px 7px;width:80px;outline:none}
+.weight-input:focus{border-color:var(--accent)}
+.weight-unit{font-family:var(--fm);font-size:10px;color:var(--muted)}
+.weight-saved{font-family:var(--fm);font-size:9px;color:var(--accent);opacity:0;transition:opacity .3s}
+.weight-saved.show{opacity:1}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:28px;padding-top:16px;border-top:1px solid var(--border)}
+.legend-title{font-family:var(--fm);font-size:10px;color:var(--muted);width:100%;letter-spacing:.05em;margin-bottom:2px}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-title{font-family:var(--fd);font-size:24px;margin-bottom:4px}
+.modal-sub{font-size:11px;color:var(--muted);font-family:var(--fm);margin-bottom:14px}
+.modal-session{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.modal-session:hover{border-color:var(--accent)}
+.modal-session.selected{border-color:var(--accent);background:rgba(200,241,53,.05)}
+.modal-session-label{font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.modal-session-date{font-family:var(--fm);font-size:10px;color:var(--muted);white-space:nowrap}
+.modal-warn{font-size:11px;color:var(--warn);background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.6;display:none}
+.modal-warn.show{display:block}
+.modal-ok{font-size:11px;color:var(--accent);background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:4px;padding:8px 10px;margin-top:10px;line-height:1.6;display:none}
+.modal-ok.show{display:block}
+.modal-btns{display:flex;gap:8px;margin-top:14px}
+.modal-btn{flex:1;padding:9px;border-radius:5px;border:none;cursor:pointer;font-family:var(--fm);font-size:11px;font-weight:500;transition:all .15s}
+.modal-btn-cancel{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.modal-btn-cancel:hover{color:var(--text)}
+.modal-btn-confirm{background:var(--accent);color:#000}
+.modal-btn-confirm:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+
+@media(max-width:480px){
+  .title{font-size:44px}
+  .app{padding:20px 14px 60px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="title">HYROX<span>.</span><br>TRAINING</div>
+      <div class="header-right">
+        <div class="race-badge">🏁 BARCELONA · MAY 17</div>
+        <div class="subtitle">doubles format</div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="rules-toggle" onclick="toggleRules()">▸ swap rules</button>
+  <div class="rules-box" id="rulesBox">
+    <strong>Always okay:</strong> Swap two days with the same session type. Move Zwift Z2 to any evening (done by 8pm). Shift long run ±1 day.<br>
+    <strong>Check first:</strong> Moving a station day — confirm it doesn't land next to another station day or after OTF. Adding a 4th OTF — confirm Thu station day is still standalone.<br>
+    <strong>Never:</strong> Two hard station days back to back · OTF + hard stations same day · Long run right after hard OTF or station day · Zero rest days in a week.
+  </div>
+
+  <div class="week-nav" id="weekNav"></div>
+  <div class="conflict-banner" id="conflictBanner">
+    <span style="flex-shrink:0;margin-top:1px">⚠</span>
+    <span id="conflictText"></span>
+  </div>
+  <div id="weekContent"></div>
+
+  <div class="legend">
+    <div class="legend-title">session types</div>
+    <span class="tag tag-otf">OTF</span>
+    <span class="tag tag-vibe-s">VIBE STATIONS</span>
+    <span class="tag tag-vibe-a">VIBE ACCESSORY</span>
+    <span class="tag tag-run">LONG RUN</span>
+    <span class="tag tag-zwift">ZWIFT Z2</span>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">MOVE SESSION</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div id="modalSessionList"></div>
+    <div class="modal-warn" id="modalWarn"></div>
+    <div class="modal-ok" id="modalOk"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" id="modalConfirm" disabled onclick="confirmSwap()">Confirm swap</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const HARD = ['otf','vibe-s','run'];
+const RACE_DATE = new Date('2025-05-17');
+
+// ── WEEKS DATA ───────────────────────────────────────────────────────────────
+const WEEKS = [
+{
+  num:0,label:'Week 0',dates:'Mar 31 – Apr 5',phase:'explore',phaseLabel:'Explore',
+  focus:'Touch every station, find starting weights. No pressure on reps or loading — just calibrate.',
+  days:[
+    {name:'Mon',date:'Mar 31',sessions:[
+      {id:'w0-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Standard effort.'},
+      {id:'w0-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',detail:'30–40 min. 3×12: leg press, seated row, shoulder press, lateral raise. Light, form focus.'}
+    ]},
+    {name:'Tue',date:'Apr 1',sessions:[
+      {id:'w0-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — explore',exercises:[
+        {id:'w0t1-skierg',name:'Ski erg',detail:'3–4 min easy. Hip hinge, not arms. Note feel.',hasWeight:false},
+        {id:'w0t1-sledpush',name:'Sled push',detail:'Try a few weights. Hard but moveable for 10m.',hasWeight:true,unit:'lbs'},
+        {id:'w0t1-sledpull',name:'Sled pull',detail:'Same exploration. Note your weight.',hasWeight:true,unit:'lbs'},
+        {id:'w0t1-wallball',name:'Wall balls',detail:'2–3×10 at 4kg to 9ft. Full squat, explosive.',hasWeight:false},
+        {id:'w0t1-sandbag',name:'Sandbag lunges',detail:'Find a weight that\'s awkward but doable.',hasWeight:true,unit:'lbs'},
+        {id:'w0t1-carry',name:'Farmers carry',detail:'Find a challenging but manageable load.',hasWeight:true,unit:'lbs'},
+        {id:'w0t1-bbj',name:'Burpee broad jumps',detail:'10 reps. Note how they feel on your body.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Wed',date:'Apr 2',sessions:[
+      {id:'w0-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
+    ]},
+    {name:'Thu',date:'Apr 3',sessions:[
+      {id:'w0-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — second look',exercises:[
+        {id:'w0t2-skierg',name:'Ski erg',detail:'Repeat. Push slightly harder if it felt too easy.',hasWeight:false,hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w0t2-sledpush',name:'Sled push',detail:'Load more confidently now.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-sledpull',name:'Sled pull',detail:'Confirm your working weight.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-wallball',name:'Wall balls',detail:'3×12.',hasWeight:false},
+        {id:'w0t2-carry',name:'Farmers carry',detail:'Go heavier if Tuesday felt light.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-bbj',name:'Burpee broad jumps',detail:'3×10. Chest-to-floor, explosive jump.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Fri',date:'Apr 4',sessions:[
+      {id:'w0-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
+      {id:'w0-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w0a2-latpull',name:'Diverging lat pulldown',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w0a2-bicep',name:'Bicep curl',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w0a2-tricep',name:'Tricep extension',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w0a2-hack',name:'Hack squat / V squat',detail:'3×12. Light.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Sat',date:'Apr 5',sessions:[
+      {id:'w0-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'5–7 miles. Easy, conversational. Zone 2 effort.'}
+    ]},
+    {name:'Sun',date:'Apr 6',sessions:[
+      {id:'w0-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Full rest or optional 30 min Zwift Z2 if legs feel genuinely good.'}
+    ]},
+  ]
+},
+{
+  num:1,label:'Week 1',dates:'Apr 6 – Apr 12',phase:'build',phaseLabel:'Build',
+  focus:'Establish working weights across all 8 stations. Challenged but not wrecked. Log everything — you\'ll build on these each week.',
+  days:[
+    {name:'Mon',date:'Apr 6',sessions:[
+      {id:'w1-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Push on tread blocks.'},
+      {id:'w1-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w1a1-legpress',name:'Leg press',detail:'3×12. Moderate weight.',hasWeight:true,unit:'lbs'},
+        {id:'w1a1-row',name:'Diverging seated row',detail:'3×12. Control the eccentric.',hasWeight:true,unit:'lbs'},
+        {id:'w1a1-shoulder',name:'Shoulder press',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w1a1-lateral',name:'Lateral raise',detail:'3×12. Slow and controlled.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'Apr 7',sessions:[
+      {id:'w1-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+        {id:'w1s1-skierg',name:'Ski erg',detail:'4×250m, rest 90s. Hip hinge focus.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w1s1-sledpush',name:'Sled push',detail:'4×10m. Hard but don\'t stall.',hasWeight:true,unit:'lbs'},
+        {id:'w1s1-sledpull',name:'Sled pull',detail:'4×10m. Same or lighter than push.',hasWeight:true,unit:'lbs'},
+        {id:'w1s1-wallball',name:'Wall balls',detail:'3×15 at 4kg to 9ft. Full squat, explosive.',hasWeight:false},
+      ]},
+      {id:'w1-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. HR under 140. ~85–110W. Done by 8pm.'}
+    ]},
+    {name:'Wed',date:'Apr 8',sessions:[
+      {id:'w1-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. If legs are dead from Tue, go easier on floor blocks.'}
+    ]},
+    {name:'Thu',date:'Apr 9',sessions:[
+      {id:'w1-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+        {id:'w1s2-carry',name:'Farmers carry',detail:'4×20m. As heavy as you can hold good posture.',hasWeight:true,unit:'lbs'},
+        {id:'w1s2-sandbag',name:'Sandbag lunges',detail:'3×20m (10m out, 10m back). Controlled.',hasWeight:true,unit:'lbs'},
+        {id:'w1s2-bbj',name:'Burpee broad jumps',detail:'3×10. Full chest-to-floor, explosive jump.',hasWeight:false},
+        {id:'w1s2-skierg',name:'Ski erg',detail:'2×250m, slightly faster than Tuesday.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w1s2-row',name:'Row',detail:'2×500m easy. Note your split.',hasTime:true,timeLabel:'Split (sec/500m)'},
+      ]},
+      {id:'w1-thu-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Genuine Zone 2 only.'}
+    ]},
+    {name:'Fri',date:'Apr 10',sessions:[
+      {id:'w1-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push on tread if legs feel okay. Floor blocks moderate.'},
+      {id:'w1-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w1a2-hack',name:'Hack squat / V squat',detail:'3×12. Light, form focus.',hasWeight:true,unit:'lbs'},
+        {id:'w1a2-latpull',name:'Diverging lat pulldown',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w1a2-bicep',name:'Bicep curl',detail:'3×12.',hasWeight:true,unit:'lbs'},
+        {id:'w1a2-tricep',name:'Tricep extension',detail:'3×12.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Sat',date:'Apr 11',sessions:[
+      {id:'w1-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'6–8 miles. Easy-moderate. Conversational. Zone 2 effort.'}
+    ]},
+    {name:'Sun',date:'Apr 12',sessions:[
+      {id:'w1-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Full rest. Or easy Zwift Z2 (30 min max) only if legs genuinely feel good.'}
+    ]},
+  ]
+},
+{
+  num:2,label:'Week 2',dates:'Apr 13 – Apr 19',phase:'build',phaseLabel:'Build',
+  focus:'Add volume — more sets, longer carries and distances. Aim to beat last week\'s weights on every station.',
+  days:[
+    {name:'Mon',date:'Apr 13',sessions:[
+      {id:'w2-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Push tread blocks hard.'},
+      {id:'w2-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w2a1-legpress',name:'Leg press',detail:'4×12. Add 10–20lbs from last week.',hasWeight:true,unit:'lbs'},
+        {id:'w2a1-row',name:'Diverging seated row',detail:'4×12. Heavier than week 1.',hasWeight:true,unit:'lbs'},
+        {id:'w2a1-shoulder',name:'Shoulder press',detail:'4×12.',hasWeight:true,unit:'lbs'},
+        {id:'w2a1-lateral',name:'Lateral raise',detail:'4×12.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'Apr 14',sessions:[
+      {id:'w2-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+        {id:'w2s1-skierg',name:'Ski erg',detail:'5×250m, rest 75s. Try to negative split — last rep faster than first.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w2s1-sledpush',name:'Sled push',detail:'5×10m. Add weight from week 1.',hasWeight:true,unit:'lbs'},
+        {id:'w2s1-sledpull',name:'Sled pull',detail:'5×10m.',hasWeight:true,unit:'lbs'},
+        {id:'w2s1-wallball',name:'Wall balls',detail:'4×15 at 4kg. Focus on rhythm, don\'t pause at top.',hasWeight:false},
+        {id:'w2s1-row',name:'Row',detail:'3×500m, rest 2 min. Hold consistent splits.',hasTime:true,timeLabel:'Split (sec/500m)'},
+      ]},
+      {id:'w2-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. HR under 140. Easy.'}
+    ]},
+    {name:'Wed',date:'Apr 15',sessions:[
+      {id:'w2-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
+    ]},
+    {name:'Thu',date:'Apr 16',sessions:[
+      {id:'w2-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+        {id:'w2s2-carry',name:'Farmers carry',detail:'5×25m. Heavier than week 1.',hasWeight:true,unit:'lbs'},
+        {id:'w2s2-sandbag',name:'Sandbag lunges',detail:'4×20m. Increase load if week 1 felt manageable.',hasWeight:true,unit:'lbs'},
+        {id:'w2s2-bbj',name:'Burpee broad jumps',detail:'4×10. Focus on distance per jump, not just speed.',hasWeight:false},
+        {id:'w2s2-skierg',name:'Ski erg',detail:'3×250m. Faster than Tuesday.',hasTime:true,timeLabel:'Split (sec/250m)'},
+      ]},
+      {id:'w2-thu-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Easy spin.'}
+    ]},
+    {name:'Fri',date:'Apr 17',sessions:[
+      {id:'w2-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
+      {id:'w2-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w2a2-hack',name:'Hack squat / V squat',detail:'4×12. Add load from week 1.',hasWeight:true,unit:'lbs'},
+        {id:'w2a2-latpull',name:'Diverging lat pulldown',detail:'4×12.',hasWeight:true,unit:'lbs'},
+        {id:'w2a2-deadlift',name:'Deadlift machine',detail:'3×10. Hinge pattern, keep back flat.',hasWeight:true,unit:'lbs'},
+        {id:'w2a2-tricep',name:'Tricep extension',detail:'3×15.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Sat',date:'Apr 18',sessions:[
+      {id:'w2-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'7–8 miles. Easy-moderate. Stay conversational the whole way.'}
+    ]},
+    {name:'Sun',date:'Apr 19',sessions:[
+      {id:'w2-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Full rest. No Zwift today — you\'ve earned it.'}
+    ]},
+  ]
+},
+{
+  num:3,label:'Week 3',dates:'Apr 20 – Apr 26',phase:'build',phaseLabel:'Build',
+  focus:'Intensity week — heavier loads, faster ski erg splits, longer wall ball sets. Legs should be adapting by now.',
+  days:[
+    {name:'Mon',date:'Apr 20',sessions:[
+      {id:'w3-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push hard. This is a peak training week.'},
+      {id:'w3-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w3a1-legpress',name:'Leg press',detail:'4×10. Heavier than week 2, fewer reps.',hasWeight:true,unit:'lbs'},
+        {id:'w3a1-row',name:'Diverging seated row',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
+        {id:'w3a1-shoulder',name:'Shoulder press',detail:'4×10.',hasWeight:true,unit:'lbs'},
+        {id:'w3a1-deadlift',name:'Deadlift machine',detail:'4×8. Heavier. Slow eccentric.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'Apr 21',sessions:[
+      {id:'w3-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — intensity',exercises:[
+        {id:'w3s1-skierg',name:'Ski erg',detail:'6×250m, rest 60s. Push pace — should be uncomfortable.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w3s1-sledpush',name:'Sled push',detail:'5×10m. Heaviest so far.',hasWeight:true,unit:'lbs'},
+        {id:'w3s1-sledpull',name:'Sled pull',detail:'5×10m.',hasWeight:true,unit:'lbs'},
+        {id:'w3s1-wallball',name:'Wall balls',detail:'3×20 at 4kg. Unbroken if possible.',hasWeight:false},
+        {id:'w3s1-row',name:'Row',detail:'4×500m, rest 90s. Hold a pace 5 sec faster than week 2.',hasTime:true,timeLabel:'Split (sec/500m)'},
+      ]},
+      {id:'w3-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Keep it truly easy after a hard morning.'}
+    ]},
+    {name:'Wed',date:'Apr 22',sessions:[
+      {id:'w3-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Go by feel — legs may be heavy.'}
+    ]},
+    {name:'Thu',date:'Apr 23',sessions:[
+      {id:'w3-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — intensity',exercises:[
+        {id:'w3s2-carry',name:'Farmers carry',detail:'5×30m. Heaviest you\'ve done. Grip should be the challenge.',hasWeight:true,unit:'lbs'},
+        {id:'w3s2-sandbag',name:'Sandbag lunges',detail:'4×25m. Heavier load, full depth.',hasWeight:true,unit:'lbs'},
+        {id:'w3s2-bbj',name:'Burpee broad jumps',detail:'4×15. Increase reps — push the conditioning.',hasWeight:false},
+        {id:'w3s2-skierg',name:'Ski erg',detail:'2×500m at race effort. Full 500m pulls.',hasTime:true,timeLabel:'Split (sec/500m)'},
+      ]},
+      {id:'w3-thu-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Recovery spin.'}
+    ]},
+    {name:'Fri',date:'Apr 24',sessions:[
+      {id:'w3-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
+      {id:'w3-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w3a2-hack',name:'Hack squat / V squat',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
+        {id:'w3a2-latpull',name:'Diverging lat pulldown',detail:'4×10.',hasWeight:true,unit:'lbs'},
+        {id:'w3a2-carry',name:'Farmers carry',detail:'3×40m. Long carries for grip endurance.',hasWeight:true,unit:'lbs'},
+        {id:'w3a2-tricep',name:'Tricep pushdown',detail:'3×15.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Sat',date:'Apr 25',sessions:[
+      {id:'w3-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'8–9 miles. First half easy, second half moderate. Practice running on tired legs.'}
+    ]},
+    {name:'Sun',date:'Apr 26',sessions:[
+      {id:'w3-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Mandatory full rest. Week 4 is peak — you need this.'}
+    ]},
+  ]
+},
+{
+  num:4,label:'Week 4',dates:'Apr 27 – May 3',phase:'peak',phaseLabel:'Peak',
+  focus:'Peak week — race simulation on Thursday. All 8 stations in sequence at half volume (doubles format). This is the hardest week.',
+  days:[
+    {name:'Mon',date:'Apr 27',sessions:[
+      {id:'w4-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Strong effort. Last big OTF push before taper.'},
+      {id:'w4-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w4a1-legpress',name:'Leg press',detail:'4×10 heavy. Peak load.',hasWeight:true,unit:'lbs'},
+        {id:'w4a1-row',name:'Diverging seated row',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
+        {id:'w4a1-shoulder',name:'Shoulder press',detail:'4×10.',hasWeight:true,unit:'lbs'},
+        {id:'w4a1-deadlift',name:'Deadlift machine',detail:'4×8 heavy.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'Apr 28',sessions:[
+      {id:'w4-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+        {id:'w4s1-skierg',name:'Ski erg',detail:'4×500m, rest 2 min. Practice race-pace efforts.',hasTime:true,timeLabel:'Split (sec/500m)'},
+        {id:'w4s1-sledpush',name:'Sled push',detail:'4×15m. Extend the distance.',hasWeight:true,unit:'lbs'},
+        {id:'w4s1-sledpull',name:'Sled pull',detail:'4×15m.',hasWeight:true,unit:'lbs'},
+        {id:'w4s1-wallball',name:'Wall balls',detail:'2×25 unbroken. This is your half of 50 reps.',hasWeight:false},
+      ]},
+      {id:'w4-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'45 min. Easy recovery spin.'}
+    ]},
+    {name:'Wed',date:'Apr 28',sessions:[
+      {id:'w4-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Moderate effort — preserve legs for Thursday sim.'}
+    ]},
+    {name:'Thu',date:'May 1',sessions:[
+      {id:'w4-thu-sim',time:'Morning',tag:'vibe-s',label:'RACE SIMULATION — all 8 stations',exercises:[
+        {id:'w4sim-skierg',name:'1. Ski erg',detail:'500m at race effort. This is your half of 1000m.',hasTime:true,timeLabel:'Time (sec)'},
+        {id:'w4sim-sledpush',name:'2. Sled push',detail:'25m. Your half of 50m.',hasWeight:true,unit:'lbs'},
+        {id:'w4sim-sledpull',name:'3. Sled pull',detail:'25m.',hasWeight:true,unit:'lbs'},
+        {id:'w4sim-bbj',name:'4. Burpee broad jumps',detail:'40m. Your half of 80m.',hasWeight:false},
+        {id:'w4sim-row',name:'5. Row',detail:'500m at race effort.',hasTime:true,timeLabel:'Time (sec)'},
+        {id:'w4sim-carry',name:'6. Farmers carry',detail:'100m. Your half of 200m.',hasWeight:true,unit:'lbs'},
+        {id:'w4sim-sandbag',name:'7. Sandbag lunges',detail:'50m. Your half of 100m.',hasWeight:true,unit:'lbs'},
+        {id:'w4sim-wallball',name:'8. Wall balls',detail:'50 reps. Your half of 100. Go unbroken.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Fri',date:'May 2',sessions:[
+      {id:'w4-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Easy class. Your legs will be cooked from Thursday. Just move.'}
+    ]},
+    {name:'Sat',date:'May 3',sessions:[
+      {id:'w4-sat-run',time:'Morning',tag:'run',label:'Long run',detail:'7–8 miles. Easy. Last long run before taper.'}
+    ]},
+    {name:'Sun',date:'May 4',sessions:[
+      {id:'w4-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Complete rest. Taper starts now.'}
+    ]},
+  ]
+},
+{
+  num:5,label:'Week 5',dates:'May 4 – May 10',phase:'taper',phaseLabel:'Taper',
+  focus:'Cut volume ~40%, keep intensity. Stay sharp, don\'t add new stimulus. Trust the training.',
+  days:[
+    {name:'Mon',date:'May 4',sessions:[
+      {id:'w5-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Normal effort, don\'t sandbag it.'},
+      {id:'w5-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory — light',exercises:[
+        {id:'w5a1-legpress',name:'Leg press',detail:'3×10. Same weight as week 4, fewer sets.',hasWeight:true,unit:'lbs'},
+        {id:'w5a1-row',name:'Diverging seated row',detail:'3×10.',hasWeight:true,unit:'lbs'},
+        {id:'w5a1-shoulder',name:'Shoulder press',detail:'3×10.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'May 5',sessions:[
+      {id:'w5-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — sharpener',exercises:[
+        {id:'w5s1-skierg',name:'Ski erg',detail:'3×250m at race pace. Sharp, not grinding.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w5s1-sledpush',name:'Sled push',detail:'3×10m. Race weight.',hasWeight:true,unit:'lbs'},
+        {id:'w5s1-sledpull',name:'Sled pull',detail:'3×10m.',hasWeight:true,unit:'lbs'},
+        {id:'w5s1-wallball',name:'Wall balls',detail:'2×20. Crisp and smooth.',hasWeight:false},
+        {id:'w5s1-bbj',name:'Burpee broad jumps',detail:'2×10. Stay explosive.',hasWeight:false},
+      ]},
+      {id:'w5-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'30 min. Easy.'}
+    ]},
+    {name:'Wed',date:'May 6',sessions:[
+      {id:'w5-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Go by feel.'}
+    ]},
+    {name:'Thu',date:'May 7',sessions:[
+      {id:'w5-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — mini sim',exercises:[
+        {id:'w5s2-skierg',name:'Ski erg',detail:'1×500m at race effort. Just one. Make it count.',hasTime:true,timeLabel:'Time (sec)'},
+        {id:'w5s2-carry',name:'Farmers carry',detail:'3×20m. Race weight.',hasWeight:true,unit:'lbs'},
+        {id:'w5s2-sandbag',name:'Sandbag lunges',detail:'2×20m.',hasWeight:true,unit:'lbs'},
+        {id:'w5s2-row',name:'Row',detail:'2×500m at race pace.',hasTime:true,timeLabel:'Time (sec)'},
+        {id:'w5s2-wallball',name:'Wall balls',detail:'1×30 unbroken. Race simulation.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Fri',date:'May 8',sessions:[
+      {id:'w5-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Last OTF before race week. Enjoy it.'}
+    ]},
+    {name:'Sat',date:'May 9',sessions:[
+      {id:'w5-sat-run',time:'Morning',tag:'run',label:'Easy run',detail:'4–5 miles only. Very easy. Legs should feel springy.'}
+    ]},
+    {name:'Sun',date:'May 10',sessions:[
+      {id:'w5-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Rest. Pack for Barcelona.'}
+    ]},
+  ]
+},
+{
+  num:6,label:'Race Week',dates:'May 11 – May 17',phase:'race',phaseLabel:'Race Week',
+  focus:'Stay loose. 2–3 very short sessions max. Travel Thursday. Race Saturday. You\'re ready.',
+  days:[
+    {name:'Mon',date:'May 11',sessions:[
+      {id:'w6-mon-otf',time:'Morning',tag:'otf',label:'OTF — last one',detail:'One final OTF. Easy-moderate. No hero efforts.'}
+    ]},
+    {name:'Tue',date:'May 12',sessions:[
+      {id:'w6-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe — final sharpener',exercises:[
+        {id:'w6s1-skierg',name:'Ski erg',detail:'2×250m. Just to feel the movement.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w6s1-sledpush',name:'Sled push',detail:'2×10m. Light and snappy.',hasWeight:true,unit:'lbs'},
+        {id:'w6s1-wallball',name:'Wall balls',detail:'2×15. Smooth rhythm.',hasWeight:false},
+        {id:'w6s1-bbj',name:'Burpee broad jumps',detail:'10 reps. Wake up the CNS.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Wed',date:'May 13',sessions:[
+      {id:'w6-wed-run',time:'Morning',tag:'run',label:'Short shakeout run',detail:'20–25 min easy. Last run before race. Very easy. Just move.'}
+    ]},
+    {name:'Thu',date:'May 14',sessions:[
+      {id:'w6-thu-travel',time:'All day',tag:'rest',label:'Travel day — NYC → Barcelona',detail:'Fly out. Hydrate well on the plane. Walk around when you can. No training.'}
+    ]},
+    {name:'Fri',date:'May 15',sessions:[
+      {id:'w6-fri-rest',time:'All day',tag:'rest',label:'Arrival + rest',detail:'Settle in, walk the city (don\'t overdo it), carb up at dinner. Early bed. Visualize the race.'}
+    ]},
+    {name:'Sat',date:'May 16',sessions:[
+      {id:'w6-sat-pre',time:'All day',tag:'rest',label:'Race prep',detail:'Light breakfast. Registration / race briefing. Don\'t stand around too long. Eat a solid dinner. Sleep early — race is tomorrow.'}
+    ]},
+    {name:'Sun',date:'May 17',sessions:[
+      {id:'w6-sun-race',time:'Race day',tag:'vibe-s',label:'🏁 HYROX BARCELONA',detail:'Doubles format. All 8 stations, half volume each. Trust your training. Go get it.'}
+    ]},
+  ]
+}
+];
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function sk(id){return'hyrox_'+id}
+function save(id,v){try{localStorage.setItem(sk(id),v)}catch(e){}}
+function load(id){try{return localStorage.getItem(sk(id))}catch(e){return null}}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentWeekIdx=1;
+let swapSessId=null,swapTargetId=null;
+
+// ── COUNTDOWN ────────────────────────────────────────────────────────────────
+function updateCountdown(){
+  const el=document.getElementById('countdown');
+  if(!el)return;
+  const now=new Date();
+  const diff=RACE_DATE-now;
+  if(diff<=0){el.textContent='race day!';return;}
+  const days=Math.floor(diff/(1000*60*60*24));
+  el.textContent=days+' days to race';
+}
+
+// ── RULES ────────────────────────────────────────────────────────────────────
+function toggleRules(){
+  const b=document.getElementById('rulesBox');
+  b.classList.toggle('show');
+  document.querySelector('.rules-toggle').textContent=b.classList.contains('show')?'▾ swap rules':'▸ swap rules';
+}
+
+// ── CONFLICT DETECTION ───────────────────────────────────────────────────────
+function detectConflicts(week){
+  const conflicts=[];
+  const days=week.days;
+  days.forEach(day=>{
+    const tags=day.sessions.map(s=>s.tag);
+    if(tags.includes('otf')&&tags.includes('vibe-s')){
+      conflicts.push(`${day.name} (${day.date}): OTF + Vibe stations same day — stations should be standalone.`);
+    }
+  });
+  for(let i=0;i<days.length-1;i++){
+    const aS=days[i].sessions.some(s=>s.tag==='vibe-s');
+    const bS=days[i+1].sessions.some(s=>s.tag==='vibe-s');
+    if(aS&&bS) conflicts.push(`${days[i].name}→${days[i+1].name}: Two station days back to back — add a recovery day between them.`);
+  }
+  return conflicts;
+}
+
+// ── TAGS ─────────────────────────────────────────────────────────────────────
+function tagHtml(t){
+  const L={otf:'OTF','vibe-s':'STATIONS','vibe-a':'ACCESSORY',run:'RUN',zwift:'ZWIFT Z2',rest:'REST'};
+  return`<span class="tag tag-${t}">${L[t]||t.toUpperCase()}</span>`;
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  const week=WEEKS[currentWeekIdx];
+  // nav
+  document.getElementById('weekNav').innerHTML=WEEKS.map((w,i)=>
+    `<button class="week-btn${i===currentWeekIdx?' active':''}${w.phase==='taper'||w.phase==='race'?' taper':''}" onclick="switchWeek(${i})">${w.label}</button>`
+  ).join('');
+  // conflicts
+  const conflicts=detectConflicts(week);
+  const banner=document.getElementById('conflictBanner');
+  if(conflicts.length){
+    banner.classList.add('show');
+    document.getElementById('conflictText').innerHTML='<strong>Conflicts:</strong> '+conflicts.join(' · ');
+  } else banner.classList.remove('show');
+  // phase badge
+  const phaseMap={explore:'phase-explore',build:'phase-build',peak:'phase-peak',taper:'phase-taper',race:'phase-race'};
+  // content
+  document.getElementById('weekContent').innerHTML=
+    `<div class="week-label">${week.label}</div>
+     <div class="week-dates">${week.dates}</div>
+     <span class="phase-badge ${phaseMap[week.phase]||''}">${week.phaseLabel}</span>
+     <div class="week-focus">${week.focus}</div>`+
+    week.days.map((day,di)=>renderDay(day,di,week,conflicts)).join('');
+  // auto open today
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const t=new Date();
+  const ts=mn[t.getMonth()]+' '+t.getDate();
+  week.days.forEach(day=>{if(day.date===ts)openDay(day.date);});
+}
+
+function renderDay(day,di,week,conflicts){
+  const hasConflict=conflicts.some(c=>c.startsWith(day.name));
+  const total=day.sessions.length;
+  const done=day.sessions.filter(s=>load('sess_done_'+s.id)==='1').length;
+  const allDone=done===total&&total>0;
+  let dots='';
+  for(let i=0;i<total;i++) dots+=`<div class="dot${i<done?' done':''}"></div>`;
+  if(hasConflict) dots+=`<div class="warn-dot"></div>`;
+  const body=day.sessions.map((sess,si)=>renderSession(sess,si,day,di)).join('');
+  return`<div class="day-card${allDone?' complete':''}${hasConflict?' conflict':''}" id="daycard_${day.date}">
+    <div class="day-head" onclick="toggleDay('${day.date}')">
+      <span class="day-name">${day.name}</span>
+      <span class="day-date-label">${day.date}</span>
+      <div class="day-right">
+        <div class="progress-dots" id="dots_${day.date}">${dots}</div>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="day-body" id="daybody_${day.date}">${body}</div>
+  </div>`;
+}
+
+function renderSession(sess,si,day,di){
+  const isDone=load('sess_done_'+sess.id)==='1';
+  let inner='';
+  if(sess.exercises&&sess.exercises.length){
+    inner=`<div class="exercises">${sess.exercises.map(ex=>renderExercise(ex)).join('')}</div>`;
+  } else if(sess.detail){
+    inner=`<div class="session-detail-text">${sess.detail}</div>`;
+  }
+  const moveBtn=sess.tag!=='rest'
+    ?`<button class="move-btn" onclick="openSwapModal('${sess.id}','${day.date}',${di})">move</button>`:'';
+  return`<div class="session-block" id="sessblock_${sess.id}">
+    <div class="session-header">
+      <span class="session-time-tag">${sess.time}</span>
+      ${tagHtml(sess.tag)}
+      <span class="session-name">${sess.label}</span>
+      ${moveBtn}
+      <div class="session-check${isDone?' checked':''}" id="sesscheck_${sess.id}" onclick="toggleSessCheck('${sess.id}','${day.date}')"></div>
+    </div>
+    ${inner}
+  </div>`;
+}
+
+function renderExercise(ex){
+  const isDone=load('ex_done_'+ex.id)==='1';
+  const wVal=load('ex_w_'+ex.id)||'';
+  const tVal=load('ex_t_'+ex.id)||'';
+  let wRow='';
+  if(ex.hasWeight) wRow+=`<div class="ex-weight-row">
+    <span class="weight-label">weight:</span>
+    <input class="weight-input" type="text" placeholder="—" value="${wVal}" oninput="saveW('ex_w_${ex.id}',this.value,'w_${ex.id}')">
+    <span class="weight-unit">${ex.unit||'lbs'}</span>
+    <span class="weight-saved" id="ws_w_${ex.id}">saved</span>
+  </div>`;
+  if(ex.hasTime) wRow+=`<div class="ex-weight-row">
+    <span class="weight-label">${ex.timeLabel||'split'}:</span>
+    <input class="weight-input" type="text" placeholder="—" value="${tVal}" oninput="saveW('ex_t_${ex.id}',this.value,'t_${ex.id}')">
+    <span class="weight-unit">sec</span>
+    <span class="weight-saved" id="ws_t_${ex.id}">saved</span>
+  </div>`;
+  return`<div class="exercise-row">
+    <div class="ex-check${isDone?' checked':''}" id="excheck_${ex.id}" onclick="toggleEx('${ex.id}')"></div>
+    <div class="ex-info">
+      <div class="ex-name${isDone?' struck':''}" id="exname_${ex.id}">${ex.name}</div>
+      <div class="ex-detail">${ex.detail}</div>
+      ${wRow}
+    </div>
+  </div>`;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function switchWeek(i){currentWeekIdx=i;render();}
+
+function toggleDay(date){
+  const card=document.getElementById('daycard_'+date);
+  const body=document.getElementById('daybody_'+date);
+  if(!card||!body)return;
+  const open=card.classList.contains('open');
+  card.classList.toggle('open',!open);
+  body.style.display=open?'none':'block';
+}
+function openDay(date){
+  const card=document.getElementById('daycard_'+date);
+  const body=document.getElementById('daybody_'+date);
+  if(!card||!body)return;
+  card.classList.add('open');body.style.display='block';
+}
+
+function toggleSessCheck(id,date){
+  const el=document.getElementById('sesscheck_'+id);
+  if(!el)return;
+  const was=el.classList.contains('checked');
+  el.classList.toggle('checked',!was);
+  save('sess_done_'+id,!was?'1':'0');
+  refreshDots(date);
+}
+
+function toggleEx(id){
+  const el=document.getElementById('excheck_'+id);
+  const nm=document.getElementById('exname_'+id);
+  if(!el)return;
+  const was=el.classList.contains('checked');
+  el.classList.toggle('checked',!was);
+  if(nm)nm.classList.toggle('struck',!was);
+  save('ex_done_'+id,!was?'1':'0');
+}
+
+function saveW(key,val,wsId){
+  save(key,val);
+  const el=document.getElementById('ws_'+wsId);
+  if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1200);}
+}
+
+function refreshDots(date){
+  const week=WEEKS[currentWeekIdx];
+  const day=week.days.find(d=>d.date===date);
+  if(!day)return;
+  const total=day.sessions.length;
+  const done=day.sessions.filter(s=>load('sess_done_'+s.id)==='1').length;
+  const conflicts=detectConflicts(week);
+  const hasConflict=conflicts.some(c=>c.startsWith(day.name));
+  let dots='';
+  for(let i=0;i<total;i++) dots+=`<div class="dot${i<done?' done':''}"></div>`;
+  if(hasConflict) dots+=`<div class="warn-dot"></div>`;
+  const dotsEl=document.getElementById('dots_'+date);
+  if(dotsEl)dotsEl.innerHTML=dots;
+  const card=document.getElementById('daycard_'+date);
+  if(card)card.classList.toggle('complete',done===total&&total>0);
+}
+
+// ── SWAP MODAL ────────────────────────────────────────────────────────────────
+function openSwapModal(sessId,date,dayIdx){
+  swapSessId=sessId;swapTargetId=null;
+  const week=WEEKS[currentWeekIdx];
+  const sess=week.days.flatMap(d=>d.sessions).find(s=>s.id===sessId);
+  document.getElementById('modalSub').textContent='Moving: '+sess.label+' ('+date+')';
+  document.getElementById('modalWarn').classList.remove('show');
+  document.getElementById('modalOk').classList.remove('show');
+  document.getElementById('modalConfirm').disabled=true;
+  const list=week.days.flatMap((day,di)=>
+    day.sessions.filter(s=>s.id!==sessId&&s.tag!=='rest').map(s=>({s,day,di}))
+  );
+  document.getElementById('modalSessionList').innerHTML=list.map(({s,day})=>
+    `<div class="modal-session" id="mopt_${s.id}" onclick="selectSwapTarget('${s.id}','${sessId}')">
+      <div class="modal-session-label">${tagHtml(s.tag)} ${s.label}</div>
+      <span class="modal-session-date">${day.name} · ${day.date}</span>
+    </div>`
+  ).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function selectSwapTarget(targetId,srcId){
+  swapTargetId=targetId;
+  document.querySelectorAll('.modal-session').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('mopt_'+targetId);
+  if(el)el.classList.add('selected');
+  document.getElementById('modalConfirm').disabled=false;
+  // simulate swap and check conflicts
+  const week=JSON.parse(JSON.stringify(WEEKS[currentWeekIdx]));
+  let srcDi=-1,srcSi=-1,tgtDi=-1,tgtSi=-1;
+  week.days.forEach((day,di)=>day.sessions.forEach((s,si)=>{
+    if(s.id===srcId){srcDi=di;srcSi=si;}
+    if(s.id===targetId){tgtDi=di;tgtSi=si;}
+  }));
+  if(srcDi<0||tgtDi<0)return;
+  const tmp=week.days[srcDi].sessions[srcSi];
+  week.days[srcDi].sessions[srcSi]=week.days[tgtDi].sessions[tgtSi];
+  week.days[tgtDi].sessions[tgtSi]=tmp;
+  const newConflicts=detectConflicts(week);
+  const warnEl=document.getElementById('modalWarn');
+  const okEl=document.getElementById('modalOk');
+  warnEl.classList.remove('show');okEl.classList.remove('show');
+  if(newConflicts.length){
+    warnEl.innerHTML='⚠ After this swap:<br>'+newConflicts.map(c=>'• '+c).join('<br>');
+    warnEl.classList.add('show');
+  } else {
+    okEl.textContent='✓ No conflicts after this swap.';
+    okEl.classList.add('show');
+  }
+}
+
+function confirmSwap(){
+  if(!swapSessId||!swapTargetId)return;
+  const week=WEEKS[currentWeekIdx];
+  let srcDi=-1,srcSi=-1,tgtDi=-1,tgtSi=-1;
+  week.days.forEach((day,di)=>day.sessions.forEach((s,si)=>{
+    if(s.id===swapSessId){srcDi=di;srcSi=si;}
+    if(s.id===swapTargetId){tgtDi=di;tgtSi=si;}
+  }));
+  if(srcDi<0||tgtDi<0)return;
+  const tmp=week.days[srcDi].sessions[srcSi];
+  week.days[srcDi].sessions[srcSi]=week.days[tgtDi].sessions[tgtSi];
+  week.days[tgtDi].sessions[tgtSi]=tmp;
+  closeModal();render();
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  swapSessId=null;swapTargetId=null;
+}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+updateCountdown();
+setInterval(updateCountdown,60000);
+render();
+</script>
+</body>
+</html>

@@ -120,7 +120,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 .weight-saved{font-family:var(--fm);font-size:9px;color:var(--accent);opacity:0;transition:opacity .3s}
 .weight-saved.show{opacity:1}
 
-/* legend */
+.session-block.cancelled{opacity:.45}
+.session-block.cancelled .session-name{text-decoration:line-through}
+.cancel-btn{background:none;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:var(--fm);font-size:9px;padding:2px 7px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.cancel-btn:hover{border-color:#e05;color:#e05}
+.cancel-btn.cancelled{border-color:var(--accent);color:var(--accent)}
+.add-sess-btn{background:none;border:1px dashed var(--border);border-radius:5px;color:var(--muted);font-family:var(--fm);font-size:10px;padding:6px 10px;cursor:pointer;width:100%;text-align:left;margin-top:6px;transition:all .15s;letter-spacing:.03em}
+.add-sess-btn:hover{border-color:var(--accent);color:var(--accent)}
+.week-tally{font-family:var(--fm);font-size:11px;color:var(--muted);padding:12px 0 4px;border-top:1px solid var(--border);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.tally-done{color:var(--accent)}
+.tally-skipped{color:var(--warn)}
+.tally-added{color:var(--vibe-a)}
+.modal-day-option{padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;cursor:pointer;transition:border-color .15s;font-size:12px;color:var(--text);font-family:var(--fm)}
+.modal-day-option:hover{border-color:var(--accent)}
+.modal-day-option.selected{border-color:var(--accent);background:rgba(200,241,53,.05)}
+.modal-sess-type{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.modal-sess-type:hover{border-color:var(--accent)}
+.modal-sess-type.selected{border-color:var(--accent);background:rgba(200,241,53,.05)}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:28px;padding-top:16px;border-top:1px solid var(--border)}
 .legend-title{font-family:var(--fm);font-size:10px;color:var(--muted);width:100%;letter-spacing:.05em;margin-bottom:2px}
 
@@ -231,14 +247,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-title">MOVE SESSION</div>
+    <div class="modal-title" id="modalTitle">MOVE SESSION</div>
     <div class="modal-sub" id="modalSub"></div>
-    <div id="modalSessionList"></div>
+    <div id="modalBody"></div>
     <div class="modal-warn" id="modalWarn"></div>
     <div class="modal-ok" id="modalOk"></div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-confirm" id="modalConfirm" disabled onclick="confirmSwap()">Confirm swap</button>
+      <button class="modal-btn modal-btn-confirm" id="modalConfirm" disabled onclick="modalConfirmAction()">Confirm</button>
     </div>
   </div>
 </div>
@@ -681,7 +697,7 @@ let currentWeekIdx=0;
   });
   currentWeekIdx=best;
 })();
-let swapSessId=null,swapTargetId=null;
+let swapSessId=null,swapTargetId=null; // legacy, unused
 
 // ── COUNTDOWN ────────────────────────────────────────────────────────────────
 function updateCountdown(){
@@ -776,7 +792,7 @@ function detectConflicts(week){
 
 // ── TAGS ─────────────────────────────────────────────────────────────────────
 function tagHtml(t){
-  const L={otf:'OTF','vibe-s':'HYROX','vibe-a':'STRENGTH',run:'RUN',zwift:'ZWIFT Z2',rest:'REST'};
+  const L={otf:'OTF','vibe-s':'HYROX','vibe-a':'STRENGTH',run:'RUN','run-short':'SHORT RUN',zwift:'ZWIFT Z2',rest:'REST'};
   return`<span class="tag tag-${t}">${L[t]||t.toUpperCase()}</span>`;
 }
 
@@ -812,13 +828,14 @@ function render(){
 
 function renderDay(day,di,week,conflicts){
   const hasConflict=conflicts.some(c=>c.startsWith(day.name));
-  const total=day.sessions.length;
+  const total=day.sessions.filter(s=>s.tag!=='rest'&&!s.isCustom).length;
   const done=day.sessions.filter(s=>load('sess_done_'+s.id)==='1').length;
   const allDone=done===total&&total>0;
   let dots='';
   for(let i=0;i<total;i++) dots+=`<div class="dot${i<done?' done':''}"></div>`;
   if(hasConflict) dots+=`<div class="warn-dot"></div>`;
   const body=day.sessions.map((sess,si)=>renderSession(sess,si,day,di)).join('');
+  const addBtn=`<button class="add-sess-btn" onclick="openAddModal(${di},'${day.date}')">+ add session</button>`;
   return`<div class="day-card${allDone?' complete':''}${hasConflict?' conflict':''}" id="daycard_${day.date}">
     <div class="day-head" onclick="toggleDay('${day.date}')">
       <span class="day-name">${day.name}</span>
@@ -828,26 +845,35 @@ function renderDay(day,di,week,conflicts){
         <span class="chevron">▾</span>
       </div>
     </div>
-    <div class="day-body" id="daybody_${day.date}">${body}</div>
+    <div class="day-body" id="daybody_${day.date}">${body}${addBtn}</div>
   </div>`;
 }
 
 function renderSession(sess,si,day,di){
   const isDone=load('sess_done_'+sess.id)==='1';
+  const isCancelled=load('sess_cancel_'+sess.id)==='1';
   let inner='';
-  if(sess.exercises&&sess.exercises.length){
-    inner=`<div class="exercises">${sess.exercises.map(ex=>renderExercise(ex,sess.id,day.date)).join('')}</div>`;
-  } else if(sess.detail){
-    inner=`<div class="session-detail-text">${sess.detail}</div>`;
+  if(!isCancelled){
+    if(sess.exercises&&sess.exercises.length){
+      inner=`<div class="exercises">${sess.exercises.map(ex=>renderExercise(ex,sess.id,day.date)).join('')}</div>`;
+    } else if(sess.detail){
+      inner=`<div class="session-detail-text">${sess.detail}</div>`;
+    }
   }
-  const moveBtn=sess.tag!=='rest'
-    ?`<button class="move-btn" onclick="openSwapModal('${sess.id}','${day.date}',${di})">move</button>`:'';
-  return`<div class="session-block" id="sessblock_${sess.id}">
+  const isRest=sess.tag==='rest';
+  const moveBtn=!isRest&&!isCancelled
+    ?`<button class="move-btn" onclick="openMoveModal('${sess.id}','${day.date}')">move</button>`:'';
+  const cancelLabel=isCancelled?'restore':'skip';
+  const cancelBtn=!isRest
+    ?`<button class="cancel-btn${isCancelled?' cancelled':''}" onclick="toggleCancelSess('${sess.id}','${day.date}')">${cancelLabel}</button>`:'';
+  const removeBtn=sess.isCustom
+    ?`<button class="cancel-btn" onclick="removeCustomSess('${sess.id}','${day.date}')" style="color:#e05;border-color:#e05">remove</button>`:'';
+  return`<div class="session-block${isCancelled?' cancelled':''}" id="sessblock_${sess.id}">
     <div class="session-header">
       <span class="session-time-tag">${sess.time}</span>
       ${tagHtml(sess.tag)}
       <span class="session-name">${sess.label}</span>
-      ${moveBtn}
+      ${moveBtn}${cancelBtn}${removeBtn}
       <div class="session-check${isDone?' checked':''}" id="sesscheck_${sess.id}" onclick="toggleSessCheck('${sess.id}','${day.date}')"></div>
     </div>
     ${inner}
@@ -968,6 +994,14 @@ function autoCheckSession(sessId,date){
   }
 }
 
+function removeCustomSess(sessId,date){
+  const week=WEEKS[currentWeekIdx];
+  week.days.forEach(day=>{
+    day.sessions=day.sessions.filter(s=>s.id!==sessId);
+  });
+  render();
+}
+
 function saveW(key,val,wsId){
   save(key,val);
   const el=document.getElementById('ws_'+wsId);
@@ -978,7 +1012,7 @@ function refreshDots(date){
   const week=WEEKS[currentWeekIdx];
   const day=week.days.find(d=>d.date===date);
   if(!day)return;
-  const total=day.sessions.length;
+  const total=day.sessions.filter(s=>s.tag!=='rest'&&!s.isCustom).length;
   const done=day.sessions.filter(s=>load('sess_done_'+s.id)==='1').length;
   const conflicts=detectConflicts(week);
   const hasConflict=conflicts.some(c=>c.startsWith(day.name));
@@ -991,75 +1025,168 @@ function refreshDots(date){
   if(card)card.classList.toggle('complete',done===total&&total>0);
 }
 
-// ── SWAP MODAL ────────────────────────────────────────────────────────────────
-function openSwapModal(sessId,date,dayIdx){
-  swapSessId=sessId;swapTargetId=null;
+// ── MODAL STATE ───────────────────────────────────────────────────────────────
+let modalMode=null; // 'move' | 'add'
+let moveSessId=null, moveTargetDayIdx=null, addTargetDayIdx=null, addSessType=null;
+
+const ADD_SESSION_TYPES=[
+  {tag:'otf',label:'OTF',detail:'Additional OTF class.'},
+  {tag:'vibe-s',label:'Hyrox',detail:'Extra Hyrox station work.'},
+  {tag:'vibe-a',label:'Strength',detail:'Extra strength session.'},
+  {tag:'run',label:'Long run',detail:'Long run.'},
+  {tag:'run-short',label:'Short run',detail:'Short easy run, 20–30 min.'},
+  {tag:'zwift',label:'Zwift Z2',detail:'Easy Zwift Zone 2.'},
+];
+
+function modalConfirmAction(){
+  if(modalMode==='move') confirmMove();
+  else if(modalMode==='add') confirmAdd();
+}
+
+// ── MOVE (no swap) ────────────────────────────────────────────────────────────
+function openMoveModal(sessId,date){
+  modalMode='move'; moveSessId=sessId; moveTargetDayIdx=null;
   const week=WEEKS[currentWeekIdx];
   const sess=week.days.flatMap(d=>d.sessions).find(s=>s.id===sessId);
-  document.getElementById('modalSub').textContent='Moving: '+sess.label+' ('+date+')';
+  const srcDayIdx=week.days.findIndex(d=>d.sessions.some(s=>s.id===sessId));
+  document.getElementById('modalTitle').textContent='MOVE SESSION';
+  document.getElementById('modalSub').textContent=sess.label+' · '+date;
   document.getElementById('modalWarn').classList.remove('show');
   document.getElementById('modalOk').classList.remove('show');
   document.getElementById('modalConfirm').disabled=true;
-  const list=week.days.flatMap((day,di)=>
-    day.sessions.filter(s=>s.id!==sessId&&s.tag!=='rest').map(s=>({s,day,di}))
-  );
-  document.getElementById('modalSessionList').innerHTML=list.map(({s,day})=>
-    `<div class="modal-session" id="mopt_${s.id}" onclick="selectSwapTarget('${s.id}','${sessId}')">
-      <div class="modal-session-label">${tagHtml(s.tag)} ${s.label}</div>
-      <span class="modal-session-date">${day.name} · ${day.date}</span>
-    </div>`
-  ).join('');
+  document.getElementById('modalConfirm').textContent='Move here';
+  document.getElementById('modalBody').innerHTML=
+    `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--fm)">Pick a destination day:</div>`+
+    week.days.map((day,di)=>{
+      if(di===srcDayIdx) return '';
+      return`<div class="modal-day-option" id="mdopt_${di}" onclick="selectMoveDay(${di},'${sessId}')">
+        <strong>${day.name}</strong> · ${day.date}
+        <span style="color:var(--muted);font-size:10px;margin-left:6px">${day.sessions.filter(s=>!load('sess_cancel_'+s.id)).map(s=>s.label).join(', ')||'empty'}</span>
+      </div>`;
+    }).join('');
   document.getElementById('modalOverlay').classList.add('show');
 }
 
-function selectSwapTarget(targetId,srcId){
-  swapTargetId=targetId;
-  document.querySelectorAll('.modal-session').forEach(el=>el.classList.remove('selected'));
-  const el=document.getElementById('mopt_'+targetId);
+function selectMoveDay(di,sessId){
+  moveTargetDayIdx=di;
+  document.querySelectorAll('.modal-day-option').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('mdopt_'+di);
   if(el)el.classList.add('selected');
   document.getElementById('modalConfirm').disabled=false;
-  // simulate swap and check conflicts
+  // check conflicts preview
   const week=JSON.parse(JSON.stringify(WEEKS[currentWeekIdx]));
-  let srcDi=-1,srcSi=-1,tgtDi=-1,tgtSi=-1;
-  week.days.forEach((day,di)=>day.sessions.forEach((s,si)=>{
-    if(s.id===srcId){srcDi=di;srcSi=si;}
-    if(s.id===targetId){tgtDi=di;tgtSi=si;}
-  }));
-  if(srcDi<0||tgtDi<0)return;
-  const tmp=week.days[srcDi].sessions[srcSi];
-  week.days[srcDi].sessions[srcSi]=week.days[tgtDi].sessions[tgtSi];
-  week.days[tgtDi].sessions[tgtSi]=tmp;
+  const srcDi=week.days.findIndex(d=>d.sessions.some(s=>s.id===sessId));
+  const srcSi=week.days[srcDi].sessions.findIndex(s=>s.id===sessId);
+  const [sess]=week.days[srcDi].sessions.splice(srcSi,1);
+  week.days[di].sessions.push(sess);
   const newConflicts=detectConflicts(week);
   const warnEl=document.getElementById('modalWarn');
   const okEl=document.getElementById('modalOk');
   warnEl.classList.remove('show');okEl.classList.remove('show');
   if(newConflicts.length){
-    warnEl.innerHTML='⚠ After this swap:<br>'+newConflicts.map(c=>'• '+c).join('<br>');
+    warnEl.innerHTML='⚠ After move:<br>'+newConflicts.map(c=>'• '+c).join('<br>');
     warnEl.classList.add('show');
   } else {
-    okEl.textContent='✓ No conflicts after this swap.';
+    okEl.textContent='✓ No conflicts after this move.';
     okEl.classList.add('show');
   }
 }
 
-function confirmSwap(){
-  if(!swapSessId||!swapTargetId)return;
+function confirmMove(){
+  if(moveSessId===null||moveTargetDayIdx===null)return;
   const week=WEEKS[currentWeekIdx];
-  let srcDi=-1,srcSi=-1,tgtDi=-1,tgtSi=-1;
-  week.days.forEach((day,di)=>day.sessions.forEach((s,si)=>{
-    if(s.id===swapSessId){srcDi=di;srcSi=si;}
-    if(s.id===swapTargetId){tgtDi=di;tgtSi=si;}
-  }));
-  if(srcDi<0||tgtDi<0)return;
-  const tmp=week.days[srcDi].sessions[srcSi];
-  week.days[srcDi].sessions[srcSi]=week.days[tgtDi].sessions[tgtSi];
-  week.days[tgtDi].sessions[tgtSi]=tmp;
+  const srcDi=week.days.findIndex(d=>d.sessions.some(s=>s.id===moveSessId));
+  const srcSi=week.days[srcDi].sessions.findIndex(s=>s.id===moveSessId);
+  const [sess]=week.days[srcDi].sessions.splice(srcSi,1);
+  week.days[moveTargetDayIdx].sessions.push(sess);
   closeModal();render();
+}
+
+// ── CANCEL / RESTORE ──────────────────────────────────────────────────────────
+function toggleCancelSess(sessId,date){
+  const isCancelled=load('sess_cancel_'+sessId)==='1';
+  save('sess_cancel_'+sessId,isCancelled?'0':'1');
+  // if cancelling, also uncheck completion
+  if(!isCancelled){
+    save('sess_done_'+sessId,'0');
+    const el=document.getElementById('sesscheck_'+sessId);
+    if(el)el.classList.remove('checked');
+  }
+  render();
+}
+
+// ── ADD SESSION ───────────────────────────────────────────────────────────────
+function openAddModal(dayIdx,date){
+  modalMode='add'; addTargetDayIdx=dayIdx; addSessType=null;
+  document.getElementById('modalTitle').textContent='ADD SESSION';
+  document.getElementById('modalSub').textContent=WEEKS[currentWeekIdx].days[dayIdx].name+' · '+date;
+  document.getElementById('modalWarn').classList.remove('show');
+  document.getElementById('modalOk').classList.remove('show');
+  document.getElementById('modalConfirm').disabled=true;
+  document.getElementById('modalConfirm').textContent='Add session';
+  document.getElementById('modalBody').innerHTML=
+    `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--fm)">Pick session type:</div>`+
+    ADD_SESSION_TYPES.map(t=>
+      `<div class="modal-sess-type" id="asopt_${t.tag}" onclick="selectAddType('${t.tag}')">
+        ${tagHtml(t.tag==='run-short'?'run':t.tag)}
+        <span style="font-size:12px;color:var(--text)">${t.label}</span>
+      </div>`
+    ).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function selectAddType(tag){
+  addSessType=tag;
+  document.querySelectorAll('.modal-sess-type').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('asopt_'+tag);
+  if(el)el.classList.add('selected');
+  document.getElementById('modalConfirm').disabled=false;
+}
+
+function confirmAdd(){
+  if(addTargetDayIdx===null||!addSessType)return;
+  const week=WEEKS[currentWeekIdx];
+  const day=week.days[addTargetDayIdx];
+  const t=ADD_SESSION_TYPES.find(x=>x.tag===addSessType);
+  const uid='custom_'+Date.now();
+  const newSess={
+    id:uid,
+    time:'Added',
+    tag:addSessType==='run-short'?'run':addSessType,
+    label:t.label,
+    detail:t.detail,
+    isCustom:true,
+  };
+  day.sessions.push(newSess);
+  save('sess_custom_'+uid,'1');
+  closeModal();render();
+}
+
+// ── TALLY ─────────────────────────────────────────────────────────────────────
+function weekTallyHtml(week){
+  let goal=0,done=0,skipped=0,added=0;
+  week.days.forEach(day=>day.sessions.forEach(s=>{
+    if(s.tag==='rest')return;
+    const isCancelled=load('sess_cancel_'+s.id)==='1';
+    const isDone=load('sess_done_'+s.id)==='1';
+    if(s.isCustom){
+      if(isDone)added++;
+      return;
+    }
+    goal++;
+    if(isCancelled)skipped++;
+    else if(isDone)done++;
+  }));
+  return`<div class="week-tally">
+    <span><span class="tally-done">${done}</span> / ${goal} done</span>
+    ${skipped?`<span class="tally-skipped">${skipped} skipped</span>`:''}
+    ${added?`<span class="tally-added">+${added} extra</span>`:''}
+  </div>`;
 }
 
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('show');
-  swapSessId=null;swapTargetId=null;
+  modalMode=null;moveSessId=null;moveTargetDayIdx=null;addTargetDayIdx=null;addSessType=null;
 }
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 

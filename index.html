@@ -812,20 +812,38 @@ function renderSession(sess,si,day,di){
   </div>`;
 }
 
+// ── PREV MAX ─────────────────────────────────────────────────────────────────
+function getPrevMax(ex){
+  // Find all exercises with same name across all weeks, excluding current exercise
+  let max=null;
+  WEEKS.forEach(w=>w.days.forEach(day=>day.sessions.forEach(sess=>{
+    if(!sess.exercises)return;
+    sess.exercises.forEach(e=>{
+      if(e.id===ex.id||e.name!==ex.name||!e.hasWeight)return;
+      const v=parseFloat(load('ex_w_'+e.id));
+      if(!isNaN(v)&&(max===null||v>max))max=v;
+    });
+  })));
+  return max;
+}
+
 function renderExercise(ex){
   const isDone=load('ex_done_'+ex.id)==='1';
   const wVal=load('ex_w_'+ex.id)||'';
   const tVal=load('ex_t_'+ex.id)||'';
+  const prevMax=ex.hasWeight?getPrevMax(ex):null;
+  const prevHint=prevMax!==null?`<span style="font-family:var(--fm);font-size:10px;color:var(--muted)">prev max: <span style="color:var(--accent)">${prevMax} ${ex.unit||'lbs'}</span></span>`:'';
   let wRow='';
   if(ex.hasWeight) wRow+=`<div class="ex-weight-row">
     <span class="weight-label">weight:</span>
-    <input class="weight-input" type="text" placeholder="—" value="${wVal}" oninput="saveW('ex_w_${ex.id}',this.value,'w_${ex.id}')">
+    <input class="weight-input" type="number" inputmode="decimal" placeholder="—" value="${wVal}" oninput="saveW('ex_w_${ex.id}',this.value,'w_${ex.id}')">
     <span class="weight-unit">${ex.unit||'lbs'}</span>
     <span class="weight-saved" id="ws_w_${ex.id}">saved</span>
+    ${prevHint}
   </div>`;
   if(ex.hasTime) wRow+=`<div class="ex-weight-row">
     <span class="weight-label">${ex.timeLabel||'split'}:</span>
-    <input class="weight-input" type="text" placeholder="—" value="${tVal}" oninput="saveW('ex_t_${ex.id}',this.value,'t_${ex.id}')">
+    <input class="weight-input" type="number" inputmode="decimal" placeholder="—" value="${tVal}" oninput="saveW('ex_t_${ex.id}',this.value,'t_${ex.id}')">
     <span class="weight-unit">sec</span>
     <span class="weight-saved" id="ws_t_${ex.id}">saved</span>
   </div>`;

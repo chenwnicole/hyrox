@@ -172,10 +172,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
   </div>
 
   <div style="display:flex;gap:8px;margin-bottom:12px">
-    <button class="rules-toggle" style="margin-bottom:0" onclick="toggleRules()">▸ swap rules</button>
-    <button class="rules-toggle" style="margin-bottom:0" id="expandBtn" onclick="toggleExpandAll()">▸ expand all</button>
+    <button class="rules-toggle" style="margin-bottom:0" onclick="toggleRules()">▸ swaps</button>
     <button class="rules-toggle" style="margin-bottom:0" onclick="toggleStandards()">▸ race standards</button>
     <button class="rules-toggle" style="margin-bottom:0" onclick="toggleStretches()">▸ stretches</button>
+    <button class="rules-toggle" style="margin-bottom:0" id="expandBtn" onclick="toggleExpandAll()">▸ expand all</button>
   </div>
   <div class="rules-box" id="rulesBox">
     <strong>Always okay:</strong> Swap two days with the same session type. Move Zwift Z2 to any evening (done by 8pm). Shift long run ±1 day.<br>
@@ -222,8 +222,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
   <div class="legend">
     <div class="legend-title">session types</div>
     <span class="tag tag-otf">OTF</span>
-    <span class="tag tag-vibe-s">VIBE STATIONS</span>
-    <span class="tag tag-vibe-a">VIBE ACCESSORY</span>
+    <span class="tag tag-vibe-s">HYROX</span>
+    <span class="tag tag-vibe-a">STRENGTH</span>
     <span class="tag tag-run">LONG RUN</span>
     <span class="tag tag-zwift">ZWIFT Z2</span>
   </div>
@@ -256,7 +256,7 @@ const WEEKS = [
   focus:'Touch every station, find starting weights. No pressure on reps or loading — just calibrate.',
   days:[
     {name:'Fri',date:'Apr 3',sessions:[
-      {id:'w0-fri-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — explore',exercises:[
+      {id:'w0-fri-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — explore',exercises:[
         {id:'w0t2-skierg',name:'Ski erg',detail:'Easy effort. Hip hinge, not arms. Note feel.',hasWeight:false,hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w0t2-sledpush',name:'Sled push',detail:'Try a few weights. Hard but moveable for 10m.',hasWeight:true,unit:'lbs'},
         {id:'w0t2-sledpull',name:'Sled pull',detail:'Find your working weight.',hasWeight:true,unit:'lbs'},
@@ -279,7 +279,7 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'Apr 6',sessions:[
       {id:'w1-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Push on tread blocks.'},
-      {id:'w1-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w1-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w1a1-legpress',name:'Leg press',detail:'3×12. Moderate weight.',hasWeight:true,unit:'lbs'},
         {id:'w1a1-row',name:'Diverging seated row',detail:'3×12. Control the eccentric.',hasWeight:true,unit:'lbs'},
         {id:'w1a1-shoulder',name:'Shoulder press',detail:'3×12.',hasWeight:true,unit:'lbs'},
@@ -287,7 +287,7 @@ const WEEKS = [
       ]}
     ]},
     {name:'Tue',date:'Apr 7',sessions:[
-      {id:'w1-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+      {id:'w1-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox',exercises:[
         {id:'w1s1-skierg',name:'Ski erg',detail:'4×250m, rest 90s. Hip hinge focus.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w1s1-sledpush',name:'Sled push',detail:'4×10m. Hard but don\'t stall.',hasWeight:true,unit:'lbs'},
         {id:'w1s1-sledpull',name:'Sled pull',detail:'4×10m. Same or lighter than push.',hasWeight:true,unit:'lbs'},
@@ -299,7 +299,7 @@ const WEEKS = [
       {id:'w1-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. If legs are dead from Tue, go easier on floor blocks.'}
     ]},
     {name:'Thu',date:'Apr 9',sessions:[
-      {id:'w1-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+      {id:'w1-thu-sta',time:'Morning',tag:'vibe-s',label:'Hyrox',exercises:[
         {id:'w1s2-carry',name:'Farmers carry',detail:'4×20m. As heavy as you can hold good posture.',hasWeight:true,unit:'lbs'},
         {id:'w1s2-sandbag',name:'Sandbag lunges',detail:'3×20m (10m out, 10m back). Controlled.',hasWeight:true,unit:'lbs'},
         {id:'w1s2-bbj',name:'Burpee broad jumps',detail:'3×10. Full chest-to-floor, explosive jump.',hasWeight:false},
@@ -310,7 +310,7 @@ const WEEKS = [
     ]},
     {name:'Fri',date:'Apr 10',sessions:[
       {id:'w1-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push on tread if legs feel okay. Floor blocks moderate.'},
-      {id:'w1-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w1-fri-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w1a2-hack',name:'Hack squat / V squat',detail:'3×12. Light, form focus.',hasWeight:true,unit:'lbs'},
         {id:'w1a2-latpull',name:'Diverging lat pulldown',detail:'3×12.',hasWeight:true,unit:'lbs'},
         {id:'w1a2-bicep',name:'Bicep curl',detail:'3×12.',hasWeight:true,unit:'lbs'},
@@ -331,7 +331,7 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'Apr 13',sessions:[
       {id:'w2-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Push tread blocks hard.'},
-      {id:'w2-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w2-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w2a1-legpress',name:'Leg press',detail:'4×12. Add 10–20lbs from last week.',hasWeight:true,unit:'lbs'},
         {id:'w2a1-row',name:'Diverging seated row',detail:'4×12. Heavier than week 1.',hasWeight:true,unit:'lbs'},
         {id:'w2a1-shoulder',name:'Shoulder press',detail:'4×12.',hasWeight:true,unit:'lbs'},
@@ -339,7 +339,7 @@ const WEEKS = [
       ]}
     ]},
     {name:'Tue',date:'Apr 14',sessions:[
-      {id:'w2-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+      {id:'w2-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox',exercises:[
         {id:'w2s1-skierg',name:'Ski erg',detail:'5×250m, rest 75s. Try to negative split — last rep faster than first.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w2s1-sledpush',name:'Sled push',detail:'5×10m. Add weight from week 1.',hasWeight:true,unit:'lbs'},
         {id:'w2s1-sledpull',name:'Sled pull',detail:'5×10m.',hasWeight:true,unit:'lbs'},
@@ -352,7 +352,7 @@ const WEEKS = [
       {id:'w2-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
     ]},
     {name:'Thu',date:'Apr 16',sessions:[
-      {id:'w2-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+      {id:'w2-thu-sta',time:'Morning',tag:'vibe-s',label:'Hyrox',exercises:[
         {id:'w2s2-carry',name:'Farmers carry',detail:'5×25m. Heavier than week 1.',hasWeight:true,unit:'lbs'},
         {id:'w2s2-sandbag',name:'Sandbag lunges',detail:'4×20m. Increase load if week 1 felt manageable.',hasWeight:true,unit:'lbs'},
         {id:'w2s2-bbj',name:'Burpee broad jumps',detail:'4×10. Focus on distance per jump, not just speed.',hasWeight:false},
@@ -362,7 +362,7 @@ const WEEKS = [
     ]},
     {name:'Fri',date:'Apr 17',sessions:[
       {id:'w2-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
-      {id:'w2-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w2-fri-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w2a2-hack',name:'Hack squat / V squat',detail:'4×12. Add load from week 1.',hasWeight:true,unit:'lbs'},
         {id:'w2a2-latpull',name:'Diverging lat pulldown',detail:'4×12.',hasWeight:true,unit:'lbs'},
         {id:'w2a2-deadlift',name:'Deadlift machine',detail:'3×10. Hinge pattern, keep back flat.',hasWeight:true,unit:'lbs'},
@@ -383,7 +383,7 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'Apr 20',sessions:[
       {id:'w3-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push hard. This is a peak training week.'},
-      {id:'w3-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w3-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w3a1-legpress',name:'Leg press',detail:'4×10. Heavier than week 2, fewer reps.',hasWeight:true,unit:'lbs'},
         {id:'w3a1-row',name:'Diverging seated row',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
         {id:'w3a1-shoulder',name:'Shoulder press',detail:'4×10.',hasWeight:true,unit:'lbs'},
@@ -391,7 +391,7 @@ const WEEKS = [
       ]}
     ]},
     {name:'Tue',date:'Apr 21',sessions:[
-      {id:'w3-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — intensity',exercises:[
+      {id:'w3-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — intensity',exercises:[
         {id:'w3s1-skierg',name:'Ski erg',detail:'6×250m, rest 60s. Push pace — should be uncomfortable.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w3s1-sledpush',name:'Sled push',detail:'5×10m. Heaviest so far.',hasWeight:true,unit:'lbs'},
         {id:'w3s1-sledpull',name:'Sled pull',detail:'5×10m.',hasWeight:true,unit:'lbs'},
@@ -404,7 +404,7 @@ const WEEKS = [
       {id:'w3-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Go by feel — legs may be heavy.'}
     ]},
     {name:'Thu',date:'Apr 23',sessions:[
-      {id:'w3-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — intensity',exercises:[
+      {id:'w3-thu-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — intensity',exercises:[
         {id:'w3s2-carry',name:'Farmers carry',detail:'5×30m. Heaviest you\'ve done. Grip should be the challenge.',hasWeight:true,unit:'lbs'},
         {id:'w3s2-sandbag',name:'Sandbag lunges',detail:'4×25m. Heavier load, full depth.',hasWeight:true,unit:'lbs'},
         {id:'w3s2-bbj',name:'Burpee broad jumps',detail:'4×15. Increase reps — push the conditioning.',hasWeight:false},
@@ -414,7 +414,7 @@ const WEEKS = [
     ]},
     {name:'Fri',date:'Apr 24',sessions:[
       {id:'w3-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'},
-      {id:'w3-fri-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w3-fri-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w3a2-hack',name:'Hack squat / V squat',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
         {id:'w3a2-latpull',name:'Diverging lat pulldown',detail:'4×10.',hasWeight:true,unit:'lbs'},
         {id:'w3a2-carry',name:'Farmers carry',detail:'3×40m. Long carries for grip endurance.',hasWeight:true,unit:'lbs'},
@@ -435,7 +435,7 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'Apr 27',sessions:[
       {id:'w4-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Strong effort. Last big OTF push before taper.'},
-      {id:'w4-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w4-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w4a1-legpress',name:'Leg press',detail:'4×10 heavy. Peak load.',hasWeight:true,unit:'lbs'},
         {id:'w4a1-row',name:'Diverging seated row',detail:'4×10 heavy.',hasWeight:true,unit:'lbs'},
         {id:'w4a1-shoulder',name:'Shoulder press',detail:'4×10.',hasWeight:true,unit:'lbs'},
@@ -443,7 +443,7 @@ const WEEKS = [
       ]}
     ]},
     {name:'Tue',date:'Apr 28',sessions:[
-      {id:'w4-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations',exercises:[
+      {id:'w4-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox',exercises:[
         {id:'w4s1-skierg',name:'Ski erg',detail:'4×500m, rest 2 min. Practice race-pace efforts.',hasTime:true,timeLabel:'Split (sec/500m)'},
         {id:'w4s1-sledpush',name:'Sled push',detail:'4×15m. Extend the distance.',hasWeight:true,unit:'lbs'},
         {id:'w4s1-sledpull',name:'Sled pull',detail:'4×15m.',hasWeight:true,unit:'lbs'},
@@ -483,14 +483,14 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'May 4',sessions:[
       {id:'w5-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Normal effort, don\'t sandbag it.'},
-      {id:'w5-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory — light',exercises:[
+      {id:'w5-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength — light',exercises:[
         {id:'w5a1-legpress',name:'Leg press',detail:'3×10. Same weight as week 4, fewer sets.',hasWeight:true,unit:'lbs'},
         {id:'w5a1-row',name:'Diverging seated row',detail:'3×10.',hasWeight:true,unit:'lbs'},
         {id:'w5a1-shoulder',name:'Shoulder press',detail:'3×10.',hasWeight:true,unit:'lbs'},
       ]}
     ]},
     {name:'Tue',date:'May 5',sessions:[
-      {id:'w5-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — sharpener',exercises:[
+      {id:'w5-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — sharpener',exercises:[
         {id:'w5s1-skierg',name:'Ski erg',detail:'3×250m at race pace. Sharp, not grinding.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w5s1-sledpush',name:'Sled push',detail:'3×10m. Race weight.',hasWeight:true,unit:'lbs'},
         {id:'w5s1-sledpull',name:'Sled pull',detail:'3×10m.',hasWeight:true,unit:'lbs'},
@@ -503,7 +503,7 @@ const WEEKS = [
       {id:'w5-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class. Go by feel.'}
     ]},
     {name:'Thu',date:'May 7',sessions:[
-      {id:'w5-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — mini sim',exercises:[
+      {id:'w5-thu-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — mini sim',exercises:[
         {id:'w5s2-skierg',name:'Ski erg',detail:'1×500m at race effort. Just one. Make it count.',hasTime:true,timeLabel:'Time (sec)'},
         {id:'w5s2-carry',name:'Farmers carry',detail:'3×20m. Race weight.',hasWeight:true,unit:'lbs'},
         {id:'w5s2-sandbag',name:'Sandbag lunges',detail:'2×20m.',hasWeight:true,unit:'lbs'},
@@ -530,7 +530,7 @@ const WEEKS = [
       {id:'w6-mon-otf',time:'Morning',tag:'otf',label:'OTF — last one',detail:'One final OTF. Easy-moderate. No hero efforts.'}
     ]},
     {name:'Tue',date:'May 12',sessions:[
-      {id:'w6-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe — final sharpener',exercises:[
+      {id:'w6-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — final sharpener',exercises:[
         {id:'w6s1-skierg',name:'Ski erg',detail:'2×250m. Just to feel the movement.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w6s1-sledpush',name:'Sled push',detail:'2×10m. Light and snappy.',hasWeight:true,unit:'lbs'},
         {id:'w6s1-wallball',name:'Wall balls',detail:'2×15. Smooth rhythm.',hasWeight:false},
@@ -587,14 +587,14 @@ const WEEKS = [
   days:[
     {name:'Mon',date:'May 25',sessions:[
       {id:'w8-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push hard. You\'re back.'},
-      {id:'w8-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+      {id:'w8-mon-acc',time:'After OTF',tag:'vibe-a',label:'Strength',exercises:[
         {id:'w8a1-legpress',name:'Leg press',detail:'3×10. Back to your peak week weights.',hasWeight:true,unit:'lbs'},
         {id:'w8a1-row',name:'Diverging seated row',detail:'3×10.',hasWeight:true,unit:'lbs'},
         {id:'w8a1-shoulder',name:'Shoulder press',detail:'3×10.',hasWeight:true,unit:'lbs'},
       ]}
     ]},
     {name:'Tue',date:'May 26',sessions:[
-      {id:'w8-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — sharpener',exercises:[
+      {id:'w8-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — sharpener',exercises:[
         {id:'w8s1-skierg',name:'Ski erg',detail:'4×250m at race pace. Sharp efforts.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w8s1-sledpush',name:'Sled push',detail:'4×10m at race weight.',hasWeight:true,unit:'lbs'},
         {id:'w8s1-sledpull',name:'Sled pull',detail:'4×10m.',hasWeight:true,unit:'lbs'},
@@ -607,7 +607,7 @@ const WEEKS = [
       {id:'w8-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
     ]},
     {name:'Thu',date:'May 28',sessions:[
-      {id:'w8-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — mini sim',exercises:[
+      {id:'w8-thu-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — mini sim',exercises:[
         {id:'w8s2-skierg',name:'Ski erg',detail:'1×500m race effort.',hasTime:true,timeLabel:'Time (sec)'},
         {id:'w8s2-carry',name:'Farmers carry',detail:'3×30m at race weight.',hasWeight:true,unit:'lbs'},
         {id:'w8s2-sandbag',name:'Sandbag lunges',detail:'3×25m.',hasWeight:true,unit:'lbs'},
@@ -634,7 +634,7 @@ const WEEKS = [
       {id:'w9-mon-otf',time:'Morning',tag:'otf',label:'OTF — last one',detail:'Easy-moderate. No hero efforts.'}
     ]},
     {name:'Tue',date:'Jun 2',sessions:[
-      {id:'w9-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe — final sharpener',exercises:[
+      {id:'w9-tue-sta',time:'Morning',tag:'vibe-s',label:'Hyrox — final sharpener',exercises:[
         {id:'w9s1-skierg',name:'Ski erg',detail:'2×250m. Just to feel the movement.',hasTime:true,timeLabel:'Split (sec/250m)'},
         {id:'w9s1-sledpush',name:'Sled push',detail:'2×10m. Light and snappy.',hasWeight:true,unit:'lbs'},
         {id:'w9s1-wallball',name:'Wall balls',detail:'2×15. Smooth rhythm.',hasWeight:false},
@@ -722,11 +722,11 @@ function toggleStretches(){
   if(show){
     document.getElementById('rulesBox').classList.remove('show');
     document.getElementById('standardsBox').style.display='none';
-    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swap rules';
-    document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
+    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swaps';
+    document.querySelectorAll('.rules-toggle')[1].textContent='▸ race standards';
   }
   b.style.display=show?'block':'none';
-  document.querySelectorAll('.rules-toggle')[3].textContent=(show?'▾':'▸')+' stretches';
+  document.querySelectorAll('.rules-toggle')[2].textContent=(show?'▾':'▸')+' stretches';
 }
 
 function toggleStandards(){
@@ -735,11 +735,11 @@ function toggleStandards(){
   if(show){
     document.getElementById('rulesBox').classList.remove('show');
     document.getElementById('stretchesBox').style.display='none';
-    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swap rules';
-    document.querySelectorAll('.rules-toggle')[3].textContent='▸ stretches';
+    document.querySelectorAll('.rules-toggle')[0].textContent='▸ swaps';
+    document.querySelectorAll('.rules-toggle')[2].textContent='▸ stretches';
   }
   b.style.display=show?'block':'none';
-  document.querySelectorAll('.rules-toggle')[2].textContent=(show?'▾':'▸')+' race standards';
+  document.querySelectorAll('.rules-toggle')[1].textContent=(show?'▾':'▸')+' race standards';
 }
 
 // ── RULES ────────────────────────────────────────────────────────────────────
@@ -749,8 +749,8 @@ function toggleRules(){
   if(showing){
     document.getElementById('standardsBox').style.display='none';
     document.getElementById('stretchesBox').style.display='none';
-    document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
-    document.querySelectorAll('.rules-toggle')[3].textContent='▸ stretches';
+    document.querySelectorAll('.rules-toggle')[1].textContent='▸ race standards';
+    document.querySelectorAll('.rules-toggle')[2].textContent='▸ stretches';
   }
   b.classList.toggle('show',showing);
   document.querySelector('.rules-toggle').textContent=(showing?'▾':'▸')+' swap rules';
@@ -776,7 +776,7 @@ function detectConflicts(week){
 
 // ── TAGS ─────────────────────────────────────────────────────────────────────
 function tagHtml(t){
-  const L={otf:'OTF','vibe-s':'STATIONS','vibe-a':'ACCESSORY',run:'RUN',zwift:'ZWIFT Z2',rest:'REST'};
+  const L={otf:'OTF','vibe-s':'HYROX','vibe-a':'STRENGTH',run:'RUN',zwift:'ZWIFT Z2',rest:'REST'};
   return`<span class="tag tag-${t}">${L[t]||t.toUpperCase()}</span>`;
 }
 

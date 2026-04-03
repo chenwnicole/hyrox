@@ -700,15 +700,20 @@ function toggleExpandAll(){
 function toggleStandards(){
   const b=document.getElementById('standardsBox');
   const show=b.style.display==='none';
+  if(show) document.getElementById('rulesBox').classList.remove('show');
   b.style.display=show?'block':'none';
   document.querySelectorAll('.rules-toggle')[2].textContent=(show?'▾':'▸')+' race standards';
+  if(show) document.querySelector('.rules-toggle').textContent='▸ swap rules';
 }
 
 // ── RULES ────────────────────────────────────────────────────────────────────
 function toggleRules(){
   const b=document.getElementById('rulesBox');
-  b.classList.toggle('show');
-  document.querySelector('.rules-toggle').textContent=b.classList.contains('show')?'▾ swap rules':'▸ swap rules';
+  const showing=!b.classList.contains('show');
+  if(showing) document.getElementById('standardsBox').style.display='none';
+  b.classList.toggle('show',showing);
+  document.querySelector('.rules-toggle').textContent=(showing?'▾':'▸')+' swap rules';
+  if(showing) document.querySelectorAll('.rules-toggle')[2].textContent='▸ race standards';
 }
 
 // ── CONFLICT DETECTION ───────────────────────────────────────────────────────

@@ -174,11 +174,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
   <div style="display:flex;gap:8px;margin-bottom:12px">
     <button class="rules-toggle" style="margin-bottom:0" onclick="toggleRules()">▸ swap rules</button>
     <button class="rules-toggle" style="margin-bottom:0" id="expandBtn" onclick="toggleExpandAll()">▸ expand all</button>
+    <button class="rules-toggle" style="margin-bottom:0" onclick="toggleStandards()">▸ race standards</button>
   </div>
   <div class="rules-box" id="rulesBox">
     <strong>Always okay:</strong> Swap two days with the same session type. Move Zwift Z2 to any evening (done by 8pm). Shift long run ±1 day.<br>
     <strong>Check first:</strong> Moving a station day — confirm it doesn't land next to another station day or after OTF. Adding a 4th OTF — confirm Thu station day is still standalone.<br>
     <strong>Never:</strong> Two hard station days back to back · OTF + hard stations same day · Long run right after hard OTF or station day · Zero rest days in a week.
+  </div>
+  <div class="rules-box" id="standardsBox" style="display:none">
+    <strong style="color:var(--accent);font-size:12px">Women's Open Doubles</strong><br><br>
+    <strong>1. SkiErg</strong> — 1,000m total<br>
+    <strong>2. Sled push</strong> — 50m total · 102kg (225lbs) incl. sled<br>
+    <strong>3. Sled pull</strong> — 50m total · 78kg (172lbs) incl. sled<br>
+    <strong>4. Burpee broad jumps</strong> — 80m total · bodyweight<br>
+    <strong>5. Row</strong> — 1,000m total<br>
+    <strong>6. Farmers carry</strong> — 200m total · 16kg (35lbs) per hand<br>
+    <strong>7. Sandbag lunges</strong> — 100m total · 10kg (22lbs) bag<br>
+    <strong>8. Wall balls</strong> — 100 reps total · 4kg (9lbs) ball · 9ft target
   </div>
 
   <div class="week-nav" id="weekNav"></div>
@@ -696,6 +708,13 @@ function toggleExpandAll(){
   });
   const btn=document.getElementById('expandBtn');
   if(btn)btn.textContent=(allExpanded?'▾ collapse all':'▸ expand all');
+}
+
+function toggleStandards(){
+  const b=document.getElementById('standardsBox');
+  const show=b.style.display==='none';
+  b.style.display=show?'block':'none';
+  document.querySelectorAll('.rules-toggle')[2].textContent=(show?'▾':'▸')+' race standards';
 }
 
 // ── RULES ────────────────────────────────────────────────────────────────────

@@ -233,20 +233,17 @@ const RACE_DATE_2 = new Date('2026-06-07');
 // ── WEEKS DATA ───────────────────────────────────────────────────────────────
 const WEEKS = [
 {
-  num:0,label:'Week 0',short:'Wk0',dates:'Mar 31 – Apr 5',phase:'explore',phaseLabel:'Explore',
+  num:0,label:'Week 0',short:'Wk0',dates:'Apr 3 – Apr 5',phase:'explore',phaseLabel:'Explore',
   focus:'Touch every station, find starting weights. No pressure on reps or loading — just calibrate.',
   days:[
-    {name:'Thu',date:'Apr 2',sessions:[
-      {id:'w0-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
-    ]},
     {name:'Fri',date:'Apr 3',sessions:[
-      {id:'w0-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — second look',exercises:[
-        {id:'w0t2-skierg',name:'Ski erg',detail:'Repeat. Push slightly harder if it felt too easy.',hasWeight:false,hasTime:true,timeLabel:'Split (sec/250m)'},
-        {id:'w0t2-sledpush',name:'Sled push',detail:'Load more confidently now.',hasWeight:true,unit:'lbs'},
-        {id:'w0t2-sledpull',name:'Sled pull',detail:'Confirm your working weight.',hasWeight:true,unit:'lbs'},
-        {id:'w0t2-wallball',name:'Wall balls',detail:'3×12.',hasWeight:false},
-        {id:'w0t2-carry',name:'Farmers carry',detail:'Go heavier if Tuesday felt light.',hasWeight:true,unit:'lbs'},
-        {id:'w0t2-bbj',name:'Burpee broad jumps',detail:'3×10. Chest-to-floor, explosive jump.',hasWeight:false},
+      {id:'w0-fri-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — explore',exercises:[
+        {id:'w0t2-skierg',name:'Ski erg',detail:'Easy effort. Hip hinge, not arms. Note feel.',hasWeight:false,hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w0t2-sledpush',name:'Sled push',detail:'Try a few weights. Hard but moveable for 10m.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-sledpull',name:'Sled pull',detail:'Find your working weight.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-wallball',name:'Wall balls',detail:'2–3×10 at 4kg to 9ft. Full squat, explosive.',hasWeight:false},
+        {id:'w0t2-carry',name:'Farmers carry',detail:'Find a challenging but manageable load.',hasWeight:true,unit:'lbs'},
+        {id:'w0t2-bbj',name:'Burpee broad jumps',detail:'10 reps. Note how they feel.',hasWeight:false},
       ]}
     ]},
     {name:'Sat',date:'Apr 4',sessions:[

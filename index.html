@@ -39,11 +39,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 .rules-box strong{color:var(--text);font-weight:500}
 
 /* week nav */
-.week-nav{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.week-nav{display:grid;grid-template-columns:repeat(5,1fr);margin-bottom:16px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .week-btn{flex:1;background:none;border:none;color:var(--muted);font-family:var(--fm);font-size:10px;padding:9px 2px;cursor:pointer;transition:all .15s;letter-spacing:.03em}
 .week-btn:hover{color:var(--text);background:var(--surface2)}
 .week-btn.active{background:var(--accent);color:#000;font-weight:500}
 .week-btn+.week-btn{border-left:1px solid var(--border)}
+.week-btn:nth-child(n+6){border-top:1px solid var(--border)}
+.week-btn:nth-child(6){border-left:none}
 
 /* conflict banner */
 .conflict-banner{display:none;align-items:flex-start;gap:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--warn);line-height:1.6}
@@ -732,7 +734,7 @@ function render(){
   const week=WEEKS[currentWeekIdx];
   // nav
   document.getElementById('weekNav').innerHTML=WEEKS.map((w,i)=>
-    `<button class="week-btn${i===currentWeekIdx?' active':''}" onclick="switchWeek(${i})">${w.short}</button>`
+    `<button class="week-btn${i===currentWeekIdx?' active':''}" onclick="switchWeek(${i})">${w.label}</button>`
   ).join('');
   // conflicts
   const conflicts=detectConflicts(week);

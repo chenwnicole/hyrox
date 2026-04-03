@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hyrox Training · Nicole</title>
+<title>Hyrox Training</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -20,14 +20,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 .app{max-width:700px;margin:0 auto;padding:32px 18px 80px}
 
 /* header */
-.header{margin-bottom:32px;border-bottom:1px solid var(--border);padding-bottom:24px}
-.header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:12px}
-.title{font-family:var(--fd);font-size:58px;letter-spacing:1px;color:var(--text);line-height:.95}
+.header{margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.title{font-family:var(--fd);font-size:42px;letter-spacing:1px;color:var(--text);line-height:1;margin-bottom:16px}
 .title span{color:var(--accent)}
-.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-top:6px}
-.race-badge{background:var(--accent2);color:#fff;font-family:var(--fm);font-size:10px;font-weight:500;padding:5px 11px;border-radius:2px;letter-spacing:.08em;white-space:nowrap}
-.subtitle{font-size:11px;color:var(--muted);font-family:var(--fm);letter-spacing:.05em}
-.countdown{font-family:var(--fm);font-size:11px;color:var(--accent);letter-spacing:.04em}
+.race-countdowns{display:flex;align-items:center;gap:0}
+.race-item{flex:1;display:flex;flex-direction:column;gap:3px}
+.race-item:last-child{align-items:flex-end}
+.race-name{font-family:var(--fd);font-size:22px;letter-spacing:.5px;color:var(--otf)}
+.race-date-label{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:.05em}
+.race-days{font-family:var(--fm);font-size:13px;color:var(--accent);letter-spacing:.04em}
+.race-divider{width:1px;background:var(--border);height:48px;margin:0 20px}
 
 /* swap rules */
 .rules-toggle{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:var(--fm);font-size:10px;padding:5px 10px;cursor:pointer;margin-bottom:12px;letter-spacing:.04em;transition:all .15s}
@@ -42,7 +44,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 .week-btn:hover{color:var(--text);background:var(--surface2)}
 .week-btn.active{background:var(--accent);color:#000;font-weight:500}
 .week-btn+.week-btn{border-left:1px solid var(--border)}
-.week-btn.taper{font-size:9px}
 
 /* conflict banner */
 .conflict-banner{display:none;align-items:flex-start;gap:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--warn);line-height:1.6}
@@ -152,17 +153,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 <body>
 <div class="app">
   <div class="header">
-    <div class="header-top">
-      <div class="title">HYROX<span>.</span><br>TRAINING</div>
-      <div class="header-right">
-        <div class="race-badge">🏁 BARCELONA · MAY 17</div>
-        <div class="subtitle">doubles</div>
-        <div class="countdown" id="countdown"></div>
+    <div class="title">HYROX<span>.</span> TRAINING</div>
+    <div class="race-countdowns">
+      <div class="race-item">
+        <div class="race-name">🏁 Barcelona</div>
+        <div class="race-date-label">May 17</div>
+        <div class="race-days" id="countdown1"></div>
+      </div>
+      <div class="race-divider"></div>
+      <div class="race-item">
+        <div class="race-name" style="color:var(--vibe-a)">🏁 NYC</div>
+        <div class="race-date-label">Jun 7</div>
+        <div class="race-days" id="countdown2"></div>
       </div>
     </div>
   </div>
 
-  <button class="rules-toggle" onclick="toggleRules()">▸ swap rules</button>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="rules-toggle" style="margin-bottom:0" onclick="toggleRules()">▸ swap rules</button>
+    <button class="rules-toggle" style="margin-bottom:0" id="expandBtn" onclick="toggleExpandAll()">▸ expand all</button>
+  </div>
   <div class="rules-box" id="rulesBox">
     <strong>Always okay:</strong> Swap two days with the same session type. Move Zwift Z2 to any evening (done by 8pm). Shift long run ±1 day.<br>
     <strong>Check first:</strong> Moving a station day — confirm it doesn't land next to another station day or after OTF. Adding a 4th OTF — confirm Thu station day is still standalone.<br>
@@ -204,11 +214,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
 const HARD = ['otf','vibe-s','run'];
 const RACE_DATE = new Date('2026-05-17');
+const RACE_DATE_2 = new Date('2026-06-07');
 
 // ── WEEKS DATA ───────────────────────────────────────────────────────────────
 const WEEKS = [
 {
-  num:0,label:'Week 0',dates:'Mar 31 – Apr 5',phase:'explore',phaseLabel:'Explore',
+  num:0,label:'Week 0',short:'Wk0',dates:'Mar 31 – Apr 5',phase:'explore',phaseLabel:'Explore',
   focus:'Touch every station, find starting weights. No pressure on reps or loading — just calibrate.',
   days:[
     {name:'Mon',date:'Mar 31',sessions:[
@@ -257,7 +268,7 @@ const WEEKS = [
   ]
 },
 {
-  num:1,label:'Week 1',dates:'Apr 6 – Apr 12',phase:'build',phaseLabel:'Build',
+  num:1,label:'Week 1',short:'Wk1',dates:'Apr 6 – Apr 12',phase:'build',phaseLabel:'Build',
   focus:'Establish working weights across all 8 stations. Challenged but not wrecked. Log everything — you\'ll build on these each week.',
   days:[
     {name:'Mon',date:'Apr 6',sessions:[
@@ -309,7 +320,7 @@ const WEEKS = [
   ]
 },
 {
-  num:2,label:'Week 2',dates:'Apr 13 – Apr 19',phase:'build',phaseLabel:'Build',
+  num:2,label:'Week 2',short:'Wk2',dates:'Apr 13 – Apr 19',phase:'build',phaseLabel:'Build',
   focus:'Add volume — more sets, longer carries and distances. Aim to beat last week\'s weights on every station.',
   days:[
     {name:'Mon',date:'Apr 13',sessions:[
@@ -361,7 +372,7 @@ const WEEKS = [
   ]
 },
 {
-  num:3,label:'Week 3',dates:'Apr 20 – Apr 26',phase:'build',phaseLabel:'Build',
+  num:3,label:'Week 3',short:'Wk3',dates:'Apr 20 – Apr 26',phase:'build',phaseLabel:'Build',
   focus:'Intensity week — heavier loads, faster ski erg splits, longer wall ball sets. Legs should be adapting by now.',
   days:[
     {name:'Mon',date:'Apr 20',sessions:[
@@ -413,8 +424,8 @@ const WEEKS = [
   ]
 },
 {
-  num:4,label:'Week 4',dates:'Apr 27 – May 3',phase:'peak',phaseLabel:'Peak',
-  focus:'Peak week — race simulation on Thursday. All 8 stations in sequence at half volume (doubles). This is the hardest week.',
+  num:4,label:'Week 4',short:'Wk4',dates:'Apr 27 – May 3',phase:'peak',phaseLabel:'Peak',
+  focus:'Peak week — race simulation on Thursday. All 8 stations in sequence at half volume (doubles format). This is the hardest week.',
   days:[
     {name:'Mon',date:'Apr 27',sessions:[
       {id:'w4-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Strong effort. Last big OTF push before taper.'},
@@ -461,7 +472,7 @@ const WEEKS = [
   ]
 },
 {
-  num:5,label:'Week 5',dates:'May 4 – May 10',phase:'taper',phaseLabel:'Taper',
+  num:5,label:'Week 5',short:'Wk5',dates:'May 4 – May 10',phase:'taper',phaseLabel:'Taper',
   focus:'Cut volume ~40%, keep intensity. Stay sharp, don\'t add new stimulus. Trust the training.',
   days:[
     {name:'Mon',date:'May 4',sessions:[
@@ -506,7 +517,7 @@ const WEEKS = [
   ]
 },
 {
-  num:6,label:'Race Week',dates:'May 11 – May 17',phase:'race',phaseLabel:'Race Week',
+  num:6,label:'Race Week',short:'R1',dates:'May 11 – May 17',phase:'race',phaseLabel:'Race Week',
   focus:'Stay loose. 2–3 very short sessions max. Travel Thursday. Race Saturday. You\'re ready.',
   days:[
     {name:'Mon',date:'May 11',sessions:[
@@ -536,6 +547,110 @@ const WEEKS = [
       {id:'w6-sun-race',time:'Race day',tag:'vibe-s',label:'🏁 HYROX BARCELONA',detail:'Doubles. All 8 stations, half volume each. Trust your training. Go get it.'}
     ]},
   ]
+},
+{
+  num:7,label:'Recovery',short:'Rec',dates:'May 18 – May 24',phase:'taper',phaseLabel:'Recovery',
+  focus:'You just raced. Easy movement only — no stations, no hard efforts. Let the body absorb the work and come back fresh.',
+  days:[
+    {name:'Mon',date:'May 18',sessions:[
+      {id:'w7-mon-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Full rest. Walk around the city if you\'re still in Barcelona. That counts.'}
+    ]},
+    {name:'Tue',date:'May 19',sessions:[
+      {id:'w7-tue-zwift',time:'Morning',tag:'zwift',label:'Easy Zwift',detail:'30 min Z2 max. Just to move. HR under 130.'},
+    ]},
+    {name:'Wed',date:'May 20',sessions:[
+      {id:'w7-wed-otf',time:'Morning',tag:'otf',label:'OTF — easy',detail:'Go to class but don\'t chase. Easy on tread, skip heavy floor blocks if sore.'}
+    ]},
+    {name:'Thu',date:'May 21',sessions:[
+      {id:'w7-thu-run',time:'Morning',tag:'run',label:'Easy run',detail:'20–30 min. Very easy. Just shake out the legs.'}
+    ]},
+    {name:'Fri',date:'May 22',sessions:[
+      {id:'w7-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Normal class. Go by feel — if energy is back, push a little.'}
+    ]},
+    {name:'Sat',date:'May 23',sessions:[
+      {id:'w7-sat-zwift',time:'Morning',tag:'zwift',label:'Zwift Z2',detail:'45 min easy. Legs should be feeling more normal by now.'}
+    ]},
+    {name:'Sun',date:'May 24',sessions:[
+      {id:'w7-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Rest. Race 2 prep begins tomorrow.'}
+    ]},
+  ]
+},
+{
+  num:8,label:'Sharpener',short:'Shrp',dates:'May 25 – May 31',phase:'build',phaseLabel:'Sharpener',
+  focus:'Back into it — moderate volume, race-sharp intensity. You have the fitness. This week is about reminding your body what race pace feels like.',
+  days:[
+    {name:'Mon',date:'May 25',sessions:[
+      {id:'w8-mon-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Push hard. You\'re back.'},
+      {id:'w8-mon-acc',time:'After OTF',tag:'vibe-a',label:'Vibe accessory',exercises:[
+        {id:'w8a1-legpress',name:'Leg press',detail:'3×10. Back to your peak week weights.',hasWeight:true,unit:'lbs'},
+        {id:'w8a1-row',name:'Diverging seated row',detail:'3×10.',hasWeight:true,unit:'lbs'},
+        {id:'w8a1-shoulder',name:'Shoulder press',detail:'3×10.',hasWeight:true,unit:'lbs'},
+      ]}
+    ]},
+    {name:'Tue',date:'May 26',sessions:[
+      {id:'w8-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — sharpener',exercises:[
+        {id:'w8s1-skierg',name:'Ski erg',detail:'4×250m at race pace. Sharp efforts.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w8s1-sledpush',name:'Sled push',detail:'4×10m at race weight.',hasWeight:true,unit:'lbs'},
+        {id:'w8s1-sledpull',name:'Sled pull',detail:'4×10m.',hasWeight:true,unit:'lbs'},
+        {id:'w8s1-wallball',name:'Wall balls',detail:'3×20. Unbroken. Race rhythm.',hasWeight:false},
+        {id:'w8s1-row',name:'Row',detail:'3×500m at race pace.',hasTime:true,timeLabel:'Time (sec)'},
+      ]},
+      {id:'w8-tue-zwift',time:'PM',tag:'zwift',label:'Zwift Z2',detail:'30 min easy.'}
+    ]},
+    {name:'Wed',date:'May 27',sessions:[
+      {id:'w8-wed-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Any class.'}
+    ]},
+    {name:'Thu',date:'May 28',sessions:[
+      {id:'w8-thu-sta',time:'Morning',tag:'vibe-s',label:'Vibe stations — mini sim',exercises:[
+        {id:'w8s2-skierg',name:'Ski erg',detail:'1×500m race effort.',hasTime:true,timeLabel:'Time (sec)'},
+        {id:'w8s2-carry',name:'Farmers carry',detail:'3×30m at race weight.',hasWeight:true,unit:'lbs'},
+        {id:'w8s2-sandbag',name:'Sandbag lunges',detail:'3×25m.',hasWeight:true,unit:'lbs'},
+        {id:'w8s2-bbj',name:'Burpee broad jumps',detail:'3×15. Stay explosive.',hasWeight:false},
+        {id:'w8s2-wallball',name:'Wall balls',detail:'1×30 unbroken.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Fri',date:'May 29',sessions:[
+      {id:'w8-fri-otf',time:'Morning',tag:'otf',label:'OTF',detail:'Last hard OTF before race week 2.'}
+    ]},
+    {name:'Sat',date:'May 30',sessions:[
+      {id:'w8-sat-run',time:'Morning',tag:'run',label:'Easy run',detail:'4–5 miles. Easy. Legs should feel springy — good sign.'}
+    ]},
+    {name:'Sun',date:'May 31',sessions:[
+      {id:'w8-sun-rest',time:'Anytime',tag:'rest',label:'Rest',detail:'Rest. Race week 2 starts tomorrow.'}
+    ]},
+  ]
+},
+{
+  num:9,label:'Race Week',short:'R2',dates:'Jun 1 – Jun 7',phase:'race',phaseLabel:'Race Week',
+  focus:'Same playbook as race week 1. Stay loose, 2–3 short sessions max. Race Sunday.',
+  days:[
+    {name:'Mon',date:'Jun 1',sessions:[
+      {id:'w9-mon-otf',time:'Morning',tag:'otf',label:'OTF — last one',detail:'Easy-moderate. No hero efforts.'}
+    ]},
+    {name:'Tue',date:'Jun 2',sessions:[
+      {id:'w9-tue-sta',time:'Morning',tag:'vibe-s',label:'Vibe — final sharpener',exercises:[
+        {id:'w9s1-skierg',name:'Ski erg',detail:'2×250m. Just to feel the movement.',hasTime:true,timeLabel:'Split (sec/250m)'},
+        {id:'w9s1-sledpush',name:'Sled push',detail:'2×10m. Light and snappy.',hasWeight:true,unit:'lbs'},
+        {id:'w9s1-wallball',name:'Wall balls',detail:'2×15. Smooth rhythm.',hasWeight:false},
+        {id:'w9s1-bbj',name:'Burpee broad jumps',detail:'10 reps. Wake up the CNS.',hasWeight:false},
+      ]}
+    ]},
+    {name:'Wed',date:'Jun 3',sessions:[
+      {id:'w9-wed-run',time:'Morning',tag:'run',label:'Shakeout run',detail:'20–25 min easy. Very easy. Just move.'}
+    ]},
+    {name:'Thu',date:'Jun 4',sessions:[
+      {id:'w9-thu-rest',time:'All day',tag:'rest',label:'Rest',detail:'Rest. Light walk. Stay off your feet.'}
+    ]},
+    {name:'Fri',date:'Jun 5',sessions:[
+      {id:'w9-fri-rest',time:'All day',tag:'rest',label:'Rest',detail:'Carb up at dinner. Early bed. Visualize.'}
+    ]},
+    {name:'Sat',date:'Jun 6',sessions:[
+      {id:'w9-sat-pre',time:'All day',tag:'rest',label:'Race prep',detail:'Race morning prep. Solid dinner. Sleep early.'}
+    ]},
+    {name:'Sun',date:'Jun 7',sessions:[
+      {id:'w9-sun-race',time:'Race day',tag:'vibe-s',label:'🏁 HYROX RACE 2',detail:'Doubles. All 8 stations, half volume each. You\'ve done this before. Go get it again.'}
+    ]},
+  ]
 }
 ];
 
@@ -550,13 +665,35 @@ let swapSessId=null,swapTargetId=null;
 
 // ── COUNTDOWN ────────────────────────────────────────────────────────────────
 function updateCountdown(){
-  const el=document.getElementById('countdown');
-  if(!el)return;
   const now=new Date();
-  const diff=RACE_DATE-now;
-  if(diff<=0){el.textContent='race day!';return;}
-  const days=Math.floor(diff/(1000*60*60*24));
-  el.textContent=days+' days to race';
+  const el1=document.getElementById('countdown1');
+  const el2=document.getElementById('countdown2');
+  const diff1=RACE_DATE-now;
+  const diff2=RACE_DATE_2-now;
+  if(el1){
+    if(diff1>0) el1.textContent=Math.floor(diff1/(1000*60*60*24))+' days to go';
+    else el1.textContent='race day! 🏁';
+  }
+  if(el2){
+    if(diff2>0) el2.textContent=Math.floor(diff2/(1000*60*60*24))+' days to go';
+    else el2.textContent='race day! 🏁';
+  }
+}
+
+// ── EXPAND ALL ───────────────────────────────────────────────────────────────
+let allExpanded=false;
+function toggleExpandAll(){
+  allExpanded=!allExpanded;
+  const week=WEEKS[currentWeekIdx];
+  week.days.forEach(day=>{
+    const card=document.getElementById('daycard_'+day.date);
+    const body=document.getElementById('daybody_'+day.date);
+    if(!card||!body)return;
+    card.classList.toggle('open',allExpanded);
+    body.style.display=allExpanded?'block':'none';
+  });
+  const btn=document.getElementById('expandBtn');
+  if(btn)btn.textContent=(allExpanded?'▾ collapse all':'▸ expand all');
 }
 
 // ── RULES ────────────────────────────────────────────────────────────────────
@@ -595,7 +732,7 @@ function render(){
   const week=WEEKS[currentWeekIdx];
   // nav
   document.getElementById('weekNav').innerHTML=WEEKS.map((w,i)=>
-    `<button class="week-btn${i===currentWeekIdx?' active':''}${w.phase==='taper'||w.phase==='race'?' taper':''}" onclick="switchWeek(${i})">${w.label}</button>`
+    `<button class="week-btn${i===currentWeekIdx?' active':''}" onclick="switchWeek(${i})">${w.short}</button>`
   ).join('');
   // conflicts
   const conflicts=detectConflicts(week);
@@ -692,7 +829,7 @@ function renderExercise(ex){
 }
 
 // ── INTERACTIONS ──────────────────────────────────────────────────────────────
-function switchWeek(i){currentWeekIdx=i;render();}
+function switchWeek(i){currentWeekIdx=i;allExpanded=false;const btn=document.getElementById('expandBtn');if(btn)btn.textContent='▸ expand all';render();}
 
 function toggleDay(date){
   const card=document.getElementById('daycard_'+date);

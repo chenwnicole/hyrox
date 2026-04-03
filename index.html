@@ -650,7 +650,21 @@ function save(id,v){try{localStorage.setItem(sk(id),v)}catch(e){}}
 function load(id){try{return localStorage.getItem(sk(id))}catch(e){return null}}
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-let currentWeekIdx=1;
+let currentWeekIdx=0;
+// Auto-select current week based on today's date
+(function(){
+  const now=new Date();
+  let best=0;
+  WEEKS.forEach((w,i)=>{
+    const days=w.days;
+    const first=new Date('2026 '+days[0].date);
+    const last=new Date('2026 '+days[days.length-1].date);
+    last.setHours(23,59,59);
+    if(now>=first&&now<=last) best=i;
+    else if(now>last) best=Math.max(best,i);
+  });
+  currentWeekIdx=best;
+})();
 let swapSessId=null,swapTargetId=null;
 
 // ── COUNTDOWN ────────────────────────────────────────────────────────────────

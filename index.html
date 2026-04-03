@@ -836,7 +836,7 @@ function renderSession(sess,si,day,di){
   const isDone=load('sess_done_'+sess.id)==='1';
   let inner='';
   if(sess.exercises&&sess.exercises.length){
-    inner=`<div class="exercises">${sess.exercises.map(ex=>renderExercise(ex)).join('')}</div>`;
+    inner=`<div class="exercises">${sess.exercises.map(ex=>renderExercise(ex,sess.id,day.date)).join('')}</div>`;
   } else if(sess.detail){
     inner=`<div class="session-detail-text">${sess.detail}</div>`;
   }
@@ -869,7 +869,7 @@ function getPrevMax(ex){
   return max;
 }
 
-function renderExercise(ex){
+function renderExercise(ex,sessId,date){
   const isDone=load('ex_done_'+ex.id)==='1';
   const wVal=load('ex_w_'+ex.id)||'';
   const tVal=load('ex_t_'+ex.id)||'';
@@ -890,7 +890,7 @@ function renderExercise(ex){
     <span class="weight-saved" id="ws_t_${ex.id}">saved</span>
   </div>`;
   return`<div class="exercise-row">
-    <div class="ex-check${isDone?' checked':''}" id="excheck_${ex.id}" onclick="toggleEx('${ex.id}')"></div>
+    <div class="ex-check${isDone?' checked':''}" id="excheck_${ex.id}" onclick="toggleEx('${ex.id}','${sessId}','${date}')"></div>
     <div class="ex-info">
       <div class="ex-name${isDone?' struck':''}" id="exname_${ex.id}">${ex.name}</div>
       <div class="ex-detail">${ex.detail}</div>
@@ -921,12 +921,26 @@ function toggleSessCheck(id,date){
   const el=document.getElementById('sesscheck_'+id);
   if(!el)return;
   const was=el.classList.contains('checked');
-  el.classList.toggle('checked',!was);
-  save('sess_done_'+id,!was?'1':'0');
+  const nowChecked=!was;
+  el.classList.toggle('checked',nowChecked);
+  save('sess_done_'+id,nowChecked?'1':'0');
+  // cascade to all exercises in this session
+  const week=WEEKS[currentWeekIdx];
+  let sess=null;
+  week.days.forEach(day=>day.sessions.forEach(s=>{if(s.id===id)sess=s;}));
+  if(sess&&sess.exercises&&sess.exercises.length){
+    sess.exercises.forEach(ex=>{
+      const exEl=document.getElementById('excheck_'+ex.id);
+      const nmEl=document.getElementById('exname_'+ex.id);
+      if(exEl){exEl.classList.toggle('checked',nowChecked);}
+      if(nmEl){nmEl.classList.toggle('struck',nowChecked);}
+      save('ex_done_'+ex.id,nowChecked?'1':'0');
+    });
+  }
   refreshDots(date);
 }
 
-function toggleEx(id){
+function toggleEx(id,sessId,date){
   const el=document.getElementById('excheck_'+id);
   const nm=document.getElementById('exname_'+id);
   if(!el)return;
@@ -934,6 +948,24 @@ function toggleEx(id){
   el.classList.toggle('checked',!was);
   if(nm)nm.classList.toggle('struck',!was);
   save('ex_done_'+id,!was?'1':'0');
+  // auto-check session if all exercises done
+  if(sessId) autoCheckSession(sessId,date);
+}
+
+function autoCheckSession(sessId,date){
+  const week=WEEKS[currentWeekIdx];
+  let sess=null;
+  week.days.forEach(day=>day.sessions.forEach(s=>{if(s.id===sessId)sess=s;}));
+  if(!sess||!sess.exercises||!sess.exercises.length)return;
+  const allDone=sess.exercises.every(ex=>load('ex_done_'+ex.id)==='1');
+  const el=document.getElementById('sesscheck_'+sessId);
+  if(!el)return;
+  const wasDone=el.classList.contains('checked');
+  if(allDone!==wasDone){
+    el.classList.toggle('checked',allDone);
+    save('sess_done_'+sessId,allDone?'1':'0');
+    refreshDots(date);
+  }
 }
 
 function saveW(key,val,wsId){

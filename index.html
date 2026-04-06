@@ -999,6 +999,7 @@ function removeCustomSess(sessId,date){
   week.days.forEach(day=>{
     day.sessions=day.sessions.filter(s=>s.id!==sessId);
   });
+  try{localStorage.removeItem('hyrox_custom_sess_'+sessId);}catch(e){}
   render();
 }
 
@@ -1158,8 +1159,32 @@ function confirmAdd(){
     isCustom:true,
   };
   day.sessions.push(newSess);
-  save('sess_custom_'+uid,'1');
+  // persist full session
+  save('custom_sess_'+uid, JSON.stringify({
+    weekIdx:currentWeekIdx,
+    dayIdx:addTargetDayIdx,
+    sess:newSess
+  }));
   closeModal();render();
+}
+
+function loadCustomSessions(){
+  // find all custom session keys and inject into WEEKS
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!key||!key.startsWith('hyrox_custom_sess_'))continue;
+      const data=JSON.parse(localStorage.getItem(key));
+      if(!data)continue;
+      const week=WEEKS[data.weekIdx];
+      if(!week)continue;
+      const day=week.days[data.dayIdx];
+      if(!day)continue;
+      // don't double-add
+      if(day.sessions.some(s=>s.id===data.sess.id))continue;
+      day.sessions.push(data.sess);
+    }
+  }catch(e){}
 }
 
 // ── TALLY ─────────────────────────────────────────────────────────────────────
@@ -1191,6 +1216,7 @@ function closeModal(){
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
+loadCustomSessions();
 updateCountdown();
 setInterval(updateCountdown,60000);
 render();
